@@ -59,4 +59,24 @@ describe("fodmap guide", () => {
     ];
     expect(consolidatedIngredientLines(entries)[0].line).toBe("Peper en zout");
   });
+
+  it("ignores preparation descriptions when combining ingredients", () => {
+    const entry = (id: string, title: string, ingredients: string) =>
+      ({
+        id,
+        planned_for: "2026-11-02",
+        recipe: { title, ingredients },
+        curated_recipe: null,
+      }) as WeeklyMenuEntry;
+    const result = consolidatedIngredientLines([
+      entry("a", "Omelet", "10 g fijne bieslook\n500 g aardappelen in stukjes"),
+      entry("b", "Puree", "15 g verse bieslook, fijngehakt\n0,5 kg geschilde aardappel"),
+    ]);
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ line: "25 g bieslook" }),
+        expect.objectContaining({ line: "1.000 g aardappelen" }),
+      ]),
+    );
+  });
 });

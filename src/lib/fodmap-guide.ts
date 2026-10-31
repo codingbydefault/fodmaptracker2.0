@@ -128,12 +128,25 @@ function parseAmount(raw: string) {
 }
 
 function normalizeIngredientName(value: string) {
-  return value
+  const normalized = value
     .split(/[,;(]/, 1)[0]
     .toLocaleLowerCase("nl-NL")
+    .replace(
+      /^(?:verse?|fijne?|fijngehakte?|fijn\s+gesneden|fijngesneden|gehakte?|gesneden|geraspte?|geschilde?|gepureerde?)\s+/,
+      "",
+    )
+    .replace(
+      /\s+(?:in\s+(?:kleine\s+)?(?:stukjes|stukken|blokjes|plakjes|reepjes|ringen)|fijngehakt|fijngesneden|gesneden|geraspt|geschild|gepureerd)$/,
+      "",
+    )
     .replace(/[.–—-]+$/g, "")
     .replace(/\s+/g, " ")
     .trim();
+  const canonicalNames: Record<string, string> = {
+    aardappel: "aardappelen",
+    bieslook: "bieslook",
+  };
+  return canonicalNames[normalized] ?? normalized;
 }
 
 function formatAmount(value: number) {

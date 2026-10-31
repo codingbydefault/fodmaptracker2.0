@@ -165,6 +165,10 @@ export default async function WeekMenuPage({
                   ))}
                 </select>
               </div>
+              <div className="field">
+                <label htmlFor="planned_servings">Personen</label>
+                <input id="planned_servings" name="planned_servings" type="number" min={1} max={24} placeholder="Receptstandaard" />
+              </div>
               <SubmitButton className="btn">Toevoegen →</SubmitButton>
               <Link
                 className="btn btn-secondary"
@@ -222,6 +226,7 @@ export default async function WeekMenuPage({
                       >
                         {recipe?.title ?? "Recept"}
                       </Link>
+                      <small className="subtle">{entry.planned_servings ?? recipe?.servings ?? 1} personen</small>
                       <form
                         action={deleteWeeklyMenuEntry}
                         style={{ marginTop: 7 }}

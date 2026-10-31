@@ -7,5 +7,5 @@ export const passwordSchema=z.string().min(10).max(128);
 export const credentialsSchema=z.object({email:emailSchema,password:passwordSchema});
 export const idSchema=z.uuid();
 export const recipeSchema=z.object({title:z.string().trim().min(2).max(120),description:z.string().trim().max(500).optional(),servings:z.coerce.number().int().min(1).max(24),preparation_minutes:z.union([z.literal(""),z.coerce.number().int().min(1).max(1440)]),ingredients:z.string().trim().min(3).max(5000),instructions:z.string().trim().min(3).max(10000),visibility:z.enum(["private","public"])});
-export const weeklyMenuSchema=z.object({recipe_id:z.uuid(),planned_for:z.iso.date(),meal_type:z.enum(["ontbijt","lunch","avondeten","tussendoor"])});
+export const weeklyMenuSchema=z.object({recipe_id:z.uuid(),planned_for:z.iso.date(),meal_type:z.enum(["ontbijt","lunch","avondeten","tussendoor"]),planned_servings:z.union([z.literal(""),z.coerce.number().int().min(1).max(24)]).optional()});
 export const profileSchema=z.object({display_name:z.string().trim().max(80).optional(),username:z.string().trim().min(3).max(30).regex(/^[A-Za-z0-9_]+$/)});

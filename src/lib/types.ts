@@ -52,6 +52,7 @@ export interface WeeklyMenuEntry {
   curated_recipe_id: string | null;
   planned_for: string;
   meal_type: MenuMealType;
+  planned_servings: number | null;
   created_at: string;
   recipe: Pick<
     Recipe,

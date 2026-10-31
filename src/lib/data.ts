@@ -151,7 +151,7 @@ export async function getWeeklyMenu(
   const { data, error } = await supabase
     .from("weekly_menu_entries")
     .select(
-      "id,user_id,recipe_id,curated_recipe_id,planned_for,meal_type,created_at,recipe:recipes(id,title,servings,preparation_minutes,ingredients),curated_recipe:curated_recipes(id,title,servings,preparation_minutes,ingredients)",
+      "id,user_id,recipe_id,curated_recipe_id,planned_for,meal_type,planned_servings,created_at,recipe:recipes(id,title,servings,preparation_minutes,ingredients),curated_recipe:curated_recipes(id,title,servings,preparation_minutes,ingredients)",
     )
     .eq("user_id", user.id)
     .gte("planned_for", start)

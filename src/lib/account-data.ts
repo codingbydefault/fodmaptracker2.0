@@ -40,7 +40,7 @@ const selects = {
   food_entries: "id,user_id,food_name,meal_type,portion_description,notes,photo_path,eaten_at,created_at",
   symptom_entries: "id,user_id,food_entry_id,symptom_type,custom_symptom,severity,notes,experienced_at,created_at",
   recipes: "id,user_id,title,description,servings,preparation_minutes,ingredients,instructions,is_public,created_at,updated_at",
-  weekly_menu_entries: "id,user_id,recipe_id,curated_recipe_id,planned_for,meal_type,created_at",
+  weekly_menu_entries: "id,user_id,recipe_id,curated_recipe_id,planned_for,meal_type,planned_servings,created_at",
   diet_phases: "id,user_id,phase_type,status,started_at,planned_end_at,ended_at,created_at",
   recipe_likes: "user_id,curated_recipe_id,created_at",
 } as const;

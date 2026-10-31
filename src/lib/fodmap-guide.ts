@@ -77,6 +77,9 @@ export function ingredientLines(entries: WeeklyMenuEntry[]) {
         line,
         recipe: recipe.title,
         date: entry.planned_for,
+        multiplier: entry.planned_servings
+          ? entry.planned_servings / recipe.servings
+          : 1,
       }));
   });
 }
@@ -86,7 +89,37 @@ export type ShoppingIngredient = {
   line: string;
   recipe: string;
   date: string;
+  category: ShoppingCategory;
 };
+
+export type ShoppingCategory =
+  | "Groenten en fruit"
+  | "Vlees, vis en eiwitten"
+  | "Zuivel en eieren"
+  | "Granen en brood"
+  | "Kruiden en smaakmakers"
+  | "Voorraadkast"
+  | "Overig";
+
+export const shoppingCategoryOrder: ShoppingCategory[] = [
+  "Groenten en fruit",
+  "Vlees, vis en eiwitten",
+  "Zuivel en eieren",
+  "Granen en brood",
+  "Kruiden en smaakmakers",
+  "Voorraadkast",
+  "Overig",
+];
+
+function shoppingCategory(name: string): ShoppingCategory {
+  if (/aardappel|tomaat|paprika|wortel|courgette|aubergine|spinazie|komkommer|paksoi|boon|pompoen|ananas|kiwi|citroen|limoen|gember|sla|fruit/i.test(name)) return "Groenten en fruit";
+  if (/kip|zalm|tonijn|kabeljauw|gehakt|rund|biefstuk|spek|kalkoen|varkens|tempeh|tofu/i.test(name)) return "Vlees, vis en eiwitten";
+  if (/melk|room|kaas|parmezaan|feta|boter|ei(?:eren)?\b|yoghurt/i.test(name)) return "Zuivel en eieren";
+  if (/pasta|rijst|quinoa|polenta|brood|noedel|havermout|bloem|paneermeel/i.test(name)) return "Granen en brood";
+  if (/peper|zout|oregano|tijm|paprikapoeder|nootmuskaat|salie|mosterd|bieslook|peterselie|basilicum|dille/i.test(name)) return "Kruiden en smaakmakers";
+  if (/olie|azijn|saus|bouillon|suiker|siroop|maïzena|pitten|noten|sesam/i.test(name)) return "Voorraadkast";
+  return "Overig";
+}
 
 const fractionValues: Record<string, number> = {
   "¼": 0.25,
@@ -188,7 +221,7 @@ export function consolidatedIngredientLines(
     { line: string; recipes: Set<string>; dates: string[] }
   >();
 
-  function addUnparsed(item: ShoppingIngredient) {
+  function addUnparsed(item: Omit<ShoppingIngredient, "category">) {
     const compact = item.line.replace(/\s+/g, " ").trim();
     const seasoning = /^(?:naar smaak\s+)?(?:peper en zout|zout en (?:zwarte )?peper)$/i.test(
       compact,
@@ -231,7 +264,7 @@ export function consolidatedIngredientLines(
       recipes: new Set<string>(),
       dates: [],
     };
-    existing.amount += amount * converted.multiplier;
+    existing.amount += amount * converted.multiplier * item.multiplier;
     existing.recipes.add(item.recipe);
     existing.dates.push(item.date);
     groups.set(key, existing);
@@ -242,12 +275,14 @@ export function consolidatedIngredientLines(
     line: `${formatShoppingQuantity(group.amount, group.unit)} ${group.name}`,
     recipe: [...group.recipes].join(" · "),
     date: group.dates.sort()[0] ?? "",
+    category: shoppingCategory(group.name),
   }));
   const unparsed = [...unparsedGroups.entries()].map(([key, group]) => ({
     id: `unparsed-${key}`,
     line: group.line,
     recipe: [...group.recipes].join(" · "),
     date: group.dates.sort()[0] ?? "",
+    category: shoppingCategory(group.line),
   }));
   return [...combined, ...unparsed].sort((a, b) =>
     a.line.localeCompare(b.line, "nl-NL"),

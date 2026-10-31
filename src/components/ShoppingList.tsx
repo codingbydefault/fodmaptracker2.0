@@ -1,44 +1,18 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-type Item = { id: string; line: string; recipe: string; date: string };
-export function ShoppingList({ week, items }: { week: string; items: Item[] }) {
-  const storageKey = `fodmap-shopping-${week}`;
-  const [checked, setChecked] = useState<string[]>([]);
-  useEffect(() => {
-    try {
-      setChecked(JSON.parse(localStorage.getItem(storageKey) ?? "[]"));
-    } catch {
-      setChecked([]);
-    }
-  }, [storageKey]);
-  const selected = useMemo(() => new Set(checked), [checked]);
-  function toggle(id: string) {
-    const next = selected.has(id)
-      ? checked.filter((x) => x !== id)
-      : [...checked, id];
-    setChecked(next);
-    localStorage.setItem(storageKey, JSON.stringify(next));
-  }
-  return (
-    <div className="shopping-list">
-      {items.map((item) => (
-        <label
-          className={
-            selected.has(item.id) ? "shopping-item checked" : "shopping-item"
-          }
-          key={item.id}
-        >
-          <input
-            type="checkbox"
-            checked={selected.has(item.id)}
-            onChange={() => toggle(item.id)}
-          />
-          <span>
-            <strong>{item.line}</strong>
-            <small>{item.recipe}</small>
-          </span>
-        </label>
-      ))}
-    </div>
-  );
+import type { ShoppingCategory, ShoppingIngredient } from "@/lib/fodmap-guide";
+import { shoppingCategoryOrder } from "@/lib/fodmap-guide";
+type State = { checked:string[]; pantry:string[]; overrides:Record<string,string>; custom:ShoppingIngredient[] };
+const emptyState:State={checked:[],pantry:[],overrides:{},custom:[]};
+export function ShoppingList({week,items}:{week:string;items:ShoppingIngredient[]}){
+ const storageKey=`fodmap-shopping-v2-${week}`;const [state,setState]=useState<State>(emptyState);const [newLine,setNewLine]=useState("");const [newCategory,setNewCategory]=useState<ShoppingCategory>("Overig");
+ useEffect(()=>{try{setState({...emptyState,...JSON.parse(localStorage.getItem(storageKey)??"{}")})}catch{setState(emptyState)}},[storageKey]);
+ function save(next:State){setState(next);localStorage.setItem(storageKey,JSON.stringify(next))}
+ const allItems=useMemo(()=>[...items,...state.custom].map(item=>({...item,line:state.overrides[item.id]??item.line})),[items,state.custom,state.overrides]);
+ const visible=allItems.filter(item=>!state.pantry.includes(item.id));const pantryItems=allItems.filter(item=>state.pantry.includes(item.id));
+ function toggle(id:string){save({...state,checked:state.checked.includes(id)?state.checked.filter(x=>x!==id):[...state.checked,id]})}
+ function setPantry(id:string,value:boolean){save({...state,pantry:value?[...state.pantry,id]:state.pantry.filter(x=>x!==id)})}
+ function edit(item:ShoppingIngredient){const line=window.prompt("Pas het ingrediënt of de hoeveelheid aan:",state.overrides[item.id]??item.line)?.trim();if(line)save({...state,overrides:{...state.overrides,[item.id]:line}})}
+ function addItem(event:React.FormEvent){event.preventDefault();const line=newLine.trim();if(!line)return;const item:ShoppingIngredient={id:`custom-${Date.now()}`,line,category:newCategory,recipe:"Zelf toegevoegd",date:week};save({...state,custom:[...state.custom,item]});setNewLine("")}
+ return <div className="shopping-list-shell"><form className="shopping-add card" onSubmit={addItem}><div className="field"><label htmlFor="shopping-new">Zelf toevoegen</label><input id="shopping-new" value={newLine} onChange={e=>setNewLine(e.target.value)} placeholder="Bijv. 2 komkommers"/></div><div className="field"><label htmlFor="shopping-category">Categorie</label><select id="shopping-category" value={newCategory} onChange={e=>setNewCategory(e.target.value as ShoppingCategory)}>{shoppingCategoryOrder.map(category=><option key={category}>{category}</option>)}</select></div><button className="btn" type="submit">Toevoegen</button></form>{shoppingCategoryOrder.map(category=>{const categoryItems=visible.filter(item=>item.category===category);if(!categoryItems.length)return null;return <section className="shopping-category" key={category}><h2 className="section-title">{category}</h2><div className="shopping-list">{categoryItems.map(item=><div className={state.checked.includes(item.id)?"shopping-item checked":"shopping-item"} key={item.id}><label><input type="checkbox" checked={state.checked.includes(item.id)} onChange={()=>toggle(item.id)}/><span><strong>{item.line}</strong><small>{item.recipe}</small></span></label><div className="shopping-actions"><button type="button" onClick={()=>edit(item)}>Wijzig</button><button type="button" onClick={()=>setPantry(item.id,true)}>Heb ik al</button></div></div>)}</div></section>})}{pantryItems.length>0&&<details className="card shopping-pantry"><summary>Heb ik al ({pantryItems.length})</summary>{pantryItems.map(item=><div className="shopping-pantry-row" key={item.id}><span>{item.line}</span><button type="button" onClick={()=>setPantry(item.id,false)}>Terugzetten</button></div>)}</details>}</div>
 }

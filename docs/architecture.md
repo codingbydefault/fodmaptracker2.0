@@ -12,7 +12,7 @@ Browser → Next.js App Router → server actions / server components → Supaba
 - `food_catalog`: voedingsmiddelen met herkomst en reviewstatus.
 - `food_fodmap_assessments`: beoordeling per FODMAP-groep en portie met bron, reviewer en verificatiedatum.
 - `recipes`: persoonlijke recepten met ingrediënten, bereidingswijze, porties en bereidingstijd.
-- `weekly_menu_entries`: een recept per gebruiker, datum en eetmoment; gekoppeld aan `recipes`.
+- `weekly_menu_entries`: een recept per gebruiker, datum en eetmoment; gekoppeld aan `recipes` of `curated_recipes`, met een optioneel aantal personen voor het schalen van de boodschappenlijst.
 - `meal-photos`: privé Storage-bucket; objectpaden beginnen met het gebruikers-id en worden via tijdelijke links getoond.
 
 ## Veiligheidsprincipes

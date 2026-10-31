@@ -142,4 +142,12 @@ describe("fodmap guide", () => {
       ]),
     );
   });
+
+  it("scales quantities to the planned number of people", () => {
+    const entries = [{
+      id:"a",planned_for:"2026-11-02",planned_servings:4,
+      recipe:{title:"Puree",servings:2,ingredients:"250 g aardappelen"},curated_recipe:null,
+    }] as WeeklyMenuEntry[];
+    expect(consolidatedIngredientLines(entries)[0].line).toBe("500 g aardappelen");
+  });
 });

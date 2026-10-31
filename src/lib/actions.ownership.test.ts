@@ -96,6 +96,7 @@ function menuForm(selection: string) {
   form.set("recipe_selection", selection);
   form.set("planned_for", "2026-10-30");
   form.set("meal_type", "avondeten");
+  form.set("planned_servings", "4");
   return form;
 }
 
@@ -173,7 +174,7 @@ describe("ownership checks in server actions", () => {
     await redirectsTo(() => addWeeklyMenuEntry(menuForm(`curated:${rowId}`)), "/weekmenu?week=2026-10-30&message=gepland");
     expect(supabase.log.some(entry => entry.table === "curated_recipes" && entry.method === "eq" && entry.args[0] === "published" && entry.args[1] === true)).toBe(true);
     const upsert = supabase.log.find(entry => entry.table === "weekly_menu_entries" && entry.method === "upsert");
-    expect(upsert?.args[0]).toMatchObject({ user_id: userId, curated_recipe_id: rowId, recipe_id: null });
+    expect(upsert?.args[0]).toMatchObject({ user_id: userId, curated_recipe_id: rowId, recipe_id: null, planned_servings: 4 });
   });
 
   it("deletes a week-menu row only for the signed-in user", async () => {

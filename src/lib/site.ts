@@ -3,4 +3,4 @@ export function siteUrl() {
   return raw.endsWith("/") ? raw.slice(0, -1) : raw;
 }
 
-export const privatePaths = ["/dashboard", "/voeding", "/klachten", "/recepten", "/weekmenu", "/profiel", "/admin", "/account/export"] as const;
+export const privatePaths = ["/dashboard", "/voeding", "/klachten", "/recepten", "/weekmenu", "/boodschappen", "/voedingswijzer", "/profiel", "/admin", "/account/export"] as const;

@@ -327,6 +327,7 @@ button {
   letter-spacing: -0.7px;
   margin: 8px 0;
 }
+.dashboard-quick-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}.dashboard-quick-actions .btn{min-width:160px}
 .quick-links {
   display: flex;
   flex-wrap: wrap;

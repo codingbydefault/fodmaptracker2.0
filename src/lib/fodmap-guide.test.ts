@@ -40,7 +40,7 @@ describe("fodmap guide", () => {
     expect(result).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          line: "1.000 g tomaten",
+          line: "1 kg tomaten",
           recipe: "Pasta · Soep",
         }),
         expect.objectContaining({ line: "3,5 el olijfolie" }),
@@ -100,7 +100,7 @@ describe("fodmap guide", () => {
     expect(result).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ line: "25 g bieslook" }),
-        expect.objectContaining({ line: "1.000 g aardappelen" }),
+        expect.objectContaining({ line: "1 kg aardappelen" }),
       ]),
     );
   });
@@ -120,6 +120,26 @@ describe("fodmap guide", () => {
     ]);
     expect(result).toContainEqual(
       expect.objectContaining({ line: "990 g aardappelen" }),
+    );
+  });
+
+  it("shows large gram and millilitre totals as kilograms and litres", () => {
+    const entries = [
+      {
+        id: "a",
+        planned_for: "2026-11-02",
+        recipe: {
+          title: "Weekmenu",
+          ingredients: "1810 g aardappelen\n750 ml lactosevrije melk\n0,75 l lactosevrije melk",
+        },
+        curated_recipe: null,
+      },
+    ] as WeeklyMenuEntry[];
+    expect(consolidatedIngredientLines(entries)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ line: "1,81 kg aardappelen" }),
+        expect.objectContaining({ line: "1,5 l lactosevrije melk" }),
+      ]),
     );
   });
 });

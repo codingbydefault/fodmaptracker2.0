@@ -155,6 +155,16 @@ function formatAmount(value: number) {
   );
 }
 
+function formatShoppingQuantity(amount: number, unit: string) {
+  if (unit === "g" && amount >= 1000) {
+    return `${formatAmount(amount / 1000)} kg`;
+  }
+  if (unit === "ml" && amount >= 1000) {
+    return `${formatAmount(amount / 1000)} l`;
+  }
+  return `${formatAmount(amount)} ${unit}`;
+}
+
 /**
  * Combines exact ingredient names when their units are compatible. Lines that
  * cannot be parsed are retained verbatim instead of being estimated.
@@ -229,7 +239,7 @@ export function consolidatedIngredientLines(
 
   const combined = [...groups.entries()].map(([key, group]) => ({
     id: `combined-${key}`,
-    line: `${formatAmount(group.amount)} ${group.unit} ${group.name}`,
+    line: `${formatShoppingQuantity(group.amount, group.unit)} ${group.name}`,
     recipe: [...group.recipes].join(" · "),
     date: group.dates.sort()[0] ?? "",
   }));

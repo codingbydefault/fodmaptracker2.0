@@ -57,7 +57,32 @@ describe("fodmap guide", () => {
         curated_recipe: null,
       } as WeeklyMenuEntry,
     ];
-    expect(consolidatedIngredientLines(entries)[0].line).toBe("Peper en zout");
+    expect(consolidatedIngredientLines(entries)[0].line).toBe(
+      "Peper en zout naar smaak",
+    );
+  });
+
+  it("shows repeated seasonings without an amount only once", () => {
+    const entries = [
+      {
+        id: "a",
+        planned_for: "2026-11-02",
+        recipe: { title: "Soep", ingredients: "naar smaak  zout en zwarte peper" },
+        curated_recipe: null,
+      },
+      {
+        id: "b",
+        planned_for: "2026-11-03",
+        recipe: { title: "Puree", ingredients: "Peper en zout" },
+        curated_recipe: null,
+      },
+    ] as WeeklyMenuEntry[];
+    expect(consolidatedIngredientLines(entries)).toEqual([
+      expect.objectContaining({
+        line: "Peper en zout naar smaak",
+        recipe: "Soep · Puree",
+      }),
+    ]);
   });
 
   it("ignores preparation descriptions when combining ingredients", () => {
@@ -77,6 +102,24 @@ describe("fodmap guide", () => {
         expect.objectContaining({ line: "25 g bieslook" }),
         expect.objectContaining({ line: "1.000 g aardappelen" }),
       ]),
+    );
+  });
+
+  it("combines the potato notations used by curated recipes", () => {
+    const entry = (id: string, ingredients: string) =>
+      ({
+        id,
+        planned_for: "2026-11-02",
+        recipe: { title: `Recept ${id}`, ingredients },
+        curated_recipe: null,
+      }) as WeeklyMenuEntry;
+    const result = consolidatedIngredientLines([
+      entry("a", "450 g aardappelen"),
+      entry("b", "400 g vastkokende aardappelen — dunne sneetjes"),
+      entry("c", "140 g gekookte aardappel — blokjes"),
+    ]);
+    expect(result).toContainEqual(
+      expect.objectContaining({ line: "990 g aardappelen" }),
     );
   });
 });

@@ -129,14 +129,14 @@ function parseAmount(raw: string) {
 
 function normalizeIngredientName(value: string) {
   const normalized = value
-    .split(/[,;(]/, 1)[0]
+    .split(/\s+[–—]\s+|[,;(]/, 1)[0]
     .toLocaleLowerCase("nl-NL")
     .replace(
-      /^(?:verse?|fijne?|fijngehakte?|fijn\s+gesneden|fijngesneden|gehakte?|gesneden|geraspte?|geschilde?|gepureerde?)\s+/,
+      /^(?:verse?|fijne?|fijngehakte?|fijn\s+gesneden|fijngesneden|gehakte?|gesneden|geraspte?|geschilde?|gepureerde?|gekookte?|vastkokende?)\s+/,
       "",
     )
     .replace(
-      /\s+(?:in\s+(?:kleine\s+)?(?:stukjes|stukken|blokjes|plakjes|reepjes|ringen)|fijngehakt|fijngesneden|gesneden|geraspt|geschild|gepureerd)$/,
+      /\s+(?:in\s+(?:kleine\s+|dunne\s+|dikke\s+)?(?:stukjes|stukken|blokjes|plakjes|sneetjes|partjes|parten|reepjes|ringen)|fijngehakt|fijngesneden|gesneden|geraspt|geschild|gepureerd)$/,
       "",
     )
     .replace(/[.–—-]+$/g, "")
@@ -173,14 +173,34 @@ export function consolidatedIngredientLines(
       dates: string[];
     }
   >();
-  const unparsed: ShoppingIngredient[] = [];
+  const unparsedGroups = new Map<
+    string,
+    { line: string; recipes: Set<string>; dates: string[] }
+  >();
+
+  function addUnparsed(item: ShoppingIngredient) {
+    const compact = item.line.replace(/\s+/g, " ").trim();
+    const seasoning = /^(?:naar smaak\s+)?(?:peper en zout|zout en (?:zwarte )?peper)$/i.test(
+      compact,
+    );
+    const line = seasoning ? "Peper en zout naar smaak" : compact;
+    const key = line.toLocaleLowerCase("nl-NL");
+    const existing = unparsedGroups.get(key) ?? {
+      line,
+      recipes: new Set<string>(),
+      dates: [],
+    };
+    existing.recipes.add(item.recipe);
+    existing.dates.push(item.date);
+    unparsedGroups.set(key, existing);
+  }
 
   for (const item of parsed) {
     const match = item.line.match(
       /^(\d+(?:[.,]\d+)?(?:[¼½¾⅓⅔⅛⅜⅝⅞])?|[¼½¾⅓⅔⅛⅜⅝⅞])\s*(g|gram|kg|ml|cl|l|liter|tl|theelepels?|el|eetlepels?|stuks?)?\s+(.+)$/i,
     );
     if (!match) {
-      unparsed.push(item);
+      addUnparsed(item);
       continue;
     }
     const amount = parseAmount(match[1]);
@@ -190,7 +210,7 @@ export function consolidatedIngredientLines(
       : { unit: "stuks", multiplier: 1 };
     const name = normalizeIngredientName(match[3]);
     if (amount === null || !converted || !name) {
-      unparsed.push(item);
+      addUnparsed(item);
       continue;
     }
     const key = `${name}|${converted.unit}`;
@@ -210,6 +230,12 @@ export function consolidatedIngredientLines(
   const combined = [...groups.entries()].map(([key, group]) => ({
     id: `combined-${key}`,
     line: `${formatAmount(group.amount)} ${group.unit} ${group.name}`,
+    recipe: [...group.recipes].join(" · "),
+    date: group.dates.sort()[0] ?? "",
+  }));
+  const unparsed = [...unparsedGroups.entries()].map(([key, group]) => ({
+    id: `unparsed-${key}`,
+    line: group.line,
     recipe: [...group.recipes].join(" · "),
     date: group.dates.sort()[0] ?? "",
   }));

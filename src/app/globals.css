@@ -1348,6 +1348,7 @@ button:disabled {
   color: var(--muted);
 }
 .label-scan-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 10px}.scan-progress{height:8px;overflow:hidden;border-radius:999px;background:#e2ebe4;margin:0 0 12px}.scan-progress span{display:block;height:100%;border-radius:inherit;background:var(--green);transition:width .2s ease}
+.label-scan-tip{font-size:12px;margin:-2px 0 12px}
 .shopping-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

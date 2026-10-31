@@ -389,6 +389,9 @@ button {
   gap: 10px;
   margin-bottom: 15px;
 }
+.week-navigation > * {
+  min-width: 0;
+}
 .week-planner {
   margin-bottom: 18px;
   border-color: #9fc5aa;
@@ -400,6 +403,11 @@ button {
   gap: 12px;
   align-items: end;
   margin-top: 14px;
+}
+.week-planner-fields .field,
+.week-planner-fields select {
+  min-width: 0;
+  max-width: 100%;
 }
 .week-day.selected {
   border-color: var(--green);
@@ -481,6 +489,8 @@ button {
 }
 .week-day {
   min-height: 220px;
+  min-width: 0;
+  overflow: hidden;
 }
 .week-day.today {
   border-color: #9fc5aa;
@@ -491,6 +501,15 @@ button {
   background: var(--green-light);
   padding: 10px;
   margin-top: 9px;
+  min-width: 0;
+  overflow: hidden;
+}
+.week-day,
+.week-entry,
+.week-entry a,
+.week-add-button {
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 .search-row {
   display: flex;

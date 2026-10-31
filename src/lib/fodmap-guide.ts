@@ -80,6 +80,130 @@ export function ingredientLines(entries: WeeklyMenuEntry[]) {
       }));
   });
 }
+
+export type ShoppingIngredient = {
+  id: string;
+  line: string;
+  recipe: string;
+  date: string;
+};
+
+const fractionValues: Record<string, number> = {
+  "¼": 0.25,
+  "½": 0.5,
+  "¾": 0.75,
+  "⅓": 1 / 3,
+  "⅔": 2 / 3,
+  "⅛": 0.125,
+  "⅜": 0.375,
+  "⅝": 0.625,
+  "⅞": 0.875,
+};
+
+const unitAliases: Record<string, { unit: string; multiplier: number }> = {
+  g: { unit: "g", multiplier: 1 },
+  gram: { unit: "g", multiplier: 1 },
+  kg: { unit: "g", multiplier: 1000 },
+  ml: { unit: "ml", multiplier: 1 },
+  cl: { unit: "ml", multiplier: 10 },
+  l: { unit: "ml", multiplier: 1000 },
+  liter: { unit: "ml", multiplier: 1000 },
+  tl: { unit: "tl", multiplier: 1 },
+  theelepel: { unit: "tl", multiplier: 1 },
+  theelepels: { unit: "tl", multiplier: 1 },
+  el: { unit: "el", multiplier: 1 },
+  eetlepel: { unit: "el", multiplier: 1 },
+  eetlepels: { unit: "el", multiplier: 1 },
+  stuk: { unit: "stuks", multiplier: 1 },
+  stuks: { unit: "stuks", multiplier: 1 },
+};
+
+function parseAmount(raw: string) {
+  const compact = raw.trim();
+  const fraction = compact.at(-1);
+  const fractionValue = fraction ? fractionValues[fraction] : undefined;
+  const whole = fractionValue === undefined ? compact : compact.slice(0, -1);
+  const numeric = whole ? Number(whole.replace(",", ".")) : 0;
+  return Number.isFinite(numeric) ? numeric + (fractionValue ?? 0) : null;
+}
+
+function normalizeIngredientName(value: string) {
+  return value
+    .split(/[,;(]/, 1)[0]
+    .toLocaleLowerCase("nl-NL")
+    .replace(/[.–—-]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function formatAmount(value: number) {
+  return new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 2 }).format(
+    value,
+  );
+}
+
+/**
+ * Combines exact ingredient names when their units are compatible. Lines that
+ * cannot be parsed are retained verbatim instead of being estimated.
+ */
+export function consolidatedIngredientLines(
+  entries: WeeklyMenuEntry[],
+): ShoppingIngredient[] {
+  const parsed = ingredientLines(entries);
+  const groups = new Map<
+    string,
+    {
+      amount: number;
+      unit: string;
+      name: string;
+      recipes: Set<string>;
+      dates: string[];
+    }
+  >();
+  const unparsed: ShoppingIngredient[] = [];
+
+  for (const item of parsed) {
+    const match = item.line.match(
+      /^(\d+(?:[.,]\d+)?(?:[¼½¾⅓⅔⅛⅜⅝⅞])?|[¼½¾⅓⅔⅛⅜⅝⅞])\s*(g|gram|kg|ml|cl|l|liter|tl|theelepels?|el|eetlepels?|stuks?)?\s+(.+)$/i,
+    );
+    if (!match) {
+      unparsed.push(item);
+      continue;
+    }
+    const amount = parseAmount(match[1]);
+    const alias = match[2]?.toLocaleLowerCase("nl-NL");
+    const converted = alias
+      ? unitAliases[alias]
+      : { unit: "stuks", multiplier: 1 };
+    const name = normalizeIngredientName(match[3]);
+    if (amount === null || !converted || !name) {
+      unparsed.push(item);
+      continue;
+    }
+    const key = `${name}|${converted.unit}`;
+    const existing = groups.get(key) ?? {
+      amount: 0,
+      unit: converted.unit,
+      name,
+      recipes: new Set<string>(),
+      dates: [],
+    };
+    existing.amount += amount * converted.multiplier;
+    existing.recipes.add(item.recipe);
+    existing.dates.push(item.date);
+    groups.set(key, existing);
+  }
+
+  const combined = [...groups.entries()].map(([key, group]) => ({
+    id: `combined-${key}`,
+    line: `${formatAmount(group.amount)} ${group.unit} ${group.name}`,
+    recipe: [...group.recipes].join(" · "),
+    date: group.dates.sort()[0] ?? "",
+  }));
+  return [...combined, ...unparsed].sort((a, b) =>
+    a.line.localeCompare(b.line, "nl-NL"),
+  );
+}
 export function stackingSignals(ingredients: string) {
   const hits = analyzeIngredientText(ingredients);
   const groups = [...new Set(hits.map((hit) => hit.group))];

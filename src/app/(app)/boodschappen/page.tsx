@@ -8,7 +8,10 @@ import {
   zonedCalendarDate,
 } from "@/lib/dates";
 import { getWeeklyMenu, requireUser } from "@/lib/data";
-import { ingredientLines, stackingSignals } from "@/lib/fodmap-guide";
+import {
+  consolidatedIngredientLines,
+  stackingSignals,
+} from "@/lib/fodmap-guide";
 export const metadata = { title: "Boodschappenlijst" };
 export default async function ShoppingPage({
   searchParams,
@@ -24,7 +27,7 @@ export default async function ShoppingPage({
   );
   const sunday = weekDates(monday)[6];
   const entries = await getWeeklyMenu(monday, sunday);
-  const items = ingredientLines(entries);
+  const items = consolidatedIngredientLines(entries);
   const combined = entries
     .map((x) => (x.recipe ?? x.curated_recipe)?.ingredients ?? "")
     .join("\n");
@@ -35,8 +38,8 @@ export default async function ShoppingPage({
         <div className="eyebrow">Weekmenu</div>
         <h1 className="page-title">Boodschappenlijst</h1>
         <p className="subtle">
-          Ingrediënten uit je geplande recepten. Vinkjes blijven op dit apparaat
-          bewaard.
+          Gelijke ingrediënten worden automatisch samengevoegd en opgeteld.
+          Vinkjes blijven op dit apparaat bewaard.
         </p>
       </header>
       <div className="week-navigation">

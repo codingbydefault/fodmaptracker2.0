@@ -1349,6 +1349,7 @@ button:disabled {
 }
 .label-scan-actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 10px}.scan-progress{height:8px;overflow:hidden;border-radius:999px;background:#e2ebe4;margin:0 0 12px}.scan-progress span{display:block;height:100%;border-radius:inherit;background:var(--green);transition:width .2s ease}
 .label-scan-tip{font-size:12px;margin:-2px 0 12px}
+.barcode-camera{position:relative;overflow:hidden;max-width:560px;margin:12px 0;border-radius:18px;background:#101410;aspect-ratio:4/3}.barcode-camera video{display:block;width:100%;height:100%;object-fit:cover}.barcode-camera:after{content:"";position:absolute;left:10%;right:10%;top:35%;height:30%;border:3px solid #fff;border-radius:12px;box-shadow:0 0 0 999px #0006}.barcode-camera span{position:absolute;z-index:1;left:12px;right:12px;bottom:12px;padding:9px 12px;border-radius:10px;background:#111b;color:#fff;text-align:center;font-size:13px;font-weight:700}.product-found{display:grid;gap:2px;margin:12px 0;padding:14px 16px;border-radius:14px;background:var(--soft-green,#eef7ef)}.product-found span,.label-data-source{font-size:12px}.label-fallback{display:flex;align-items:center;gap:12px;margin:18px 0 4px;color:var(--muted);font-size:12px;font-weight:700}.label-fallback:before,.label-fallback:after{content:"";height:1px;flex:1;background:var(--line,#dfe6df)}
 .shopping-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

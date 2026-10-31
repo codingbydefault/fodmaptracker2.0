@@ -1,8 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { analyzeIngredientText, fodmapGroupNames } from "@/lib/fodmap-guide";
 import { cleanRecognizedLabelText, readableLabelText } from "@/lib/label-ocr";
+import type { IScannerControls } from "@zxing/browser";
+import type { ProductLookup } from "@/lib/open-food-facts";
 
 async function prepareLabelImage(file: File) {
   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
@@ -30,8 +32,61 @@ export function LabelChecker() {
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [barcodeScanning, setBarcodeScanning] = useState(false);
+  const [productLoading, setProductLoading] = useState(false);
+  const [product, setProduct] = useState<ProductLookup | null>(null);
   const cameraInput = useRef<HTMLInputElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  const scannerControls = useRef<IScannerControls | null>(null);
   const findings = checkedValue ? analyzeIngredientText(checkedValue) : [];
+  useEffect(() => () => scannerControls.current?.stop(), []);
+
+  function stopBarcodeScanner() {
+    scannerControls.current?.stop();
+    scannerControls.current = null;
+    setBarcodeScanning(false);
+  }
+
+  async function lookupProduct(barcode: string) {
+    setProductLoading(true); setScanError(null);
+    try {
+      const response = await fetch(`/api/product/${encodeURIComponent(barcode)}`);
+      const result = await response.json() as ProductLookup | { error?: string };
+      if (!response.ok || !("barcode" in result)) throw new Error("error" in result ? result.error : undefined);
+      setProduct(result);
+      if (!result.ingredients) {
+        setScanError(`${result.name || "Dit product"} is gevonden, maar de ingrediëntenlijst ontbreekt. Gebruik hieronder de fotoherkenning.`);
+        return;
+      }
+      setValue(result.ingredients); setCheckedValue(result.ingredients);
+    } catch (error) {
+      setProduct(null);
+      setScanError(error instanceof Error && error.message && error.message !== "error" ? error.message : "Dit product staat nog niet in de productendatabank. Gebruik hieronder de fotoherkenning.");
+    } finally { setProductLoading(false); }
+  }
+
+  async function startBarcodeScanner() {
+    setScanError(null); setProduct(null); setBarcodeScanning(true);
+    try {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const { BrowserMultiFormatOneDReader } = await import("@zxing/browser");
+      const reader = new BrowserMultiFormatOneDReader(undefined, { delayBetweenScanAttempts: 250 });
+      if (!video.current) throw new Error("camera");
+      scannerControls.current = await reader.decodeFromConstraints(
+        { video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+        video.current,
+        (result) => {
+          if (!result) return;
+          const barcode = result.getText();
+          stopBarcodeScanner();
+          void lookupProduct(barcode);
+        },
+      );
+    } catch {
+      stopBarcodeScanner();
+      setScanError("De camera kon niet worden geopend. Controleer de cameratoestemming in je browser of gebruik de fotoherkenning hieronder.");
+    }
+  }
   async function scanLabel(file: File) {
     setScanning(true); setProgress(0); setScanError(null);
     try {
@@ -56,16 +111,39 @@ export function LabelChecker() {
     <section className="card" id="etiketcontrole">
       <h2 className="section-title">Etiketcontrole</h2>
       <p className="subtle">
-        Fotografeer het ingrediëntenblok of plak de tekst. De foto wordt lokaal op dit toestel verwerkt en niet opgeslagen. We signaleren alleen bekende
+        Scan eerst de barcode: zo halen we de ingrediënten op zonder kleine etikettekst te moeten ontcijferen. We signaleren alleen bekende
         aandachtspunten; dit vervangt geen producttest of diëtist.
       </p>
       <div className="label-scan-actions">
+        {!barcodeScanning ? (
+          <button className="btn" type="button" disabled={productLoading || scanning} onClick={()=>void startBarcodeScanner()}>
+            {productLoading ? "Product ophalen…" : "▥ Scan barcode"}
+          </button>
+        ) : (
+          <button className="btn btn-secondary" type="button" onClick={stopBarcodeScanner}>Scanner sluiten</button>
+        )}
+      </div>
+      {barcodeScanning && (
+        <div className="barcode-camera" role="region" aria-label="Barcodescanner">
+          <video ref={video} muted playsInline />
+          <span>Houd de streepjescode binnen het kader</span>
+        </div>
+      )}
+      {product && (
+        <div className="product-found" aria-live="polite">
+          <strong>{product.name || "Product gevonden"}</strong>
+          <span>{[product.brand, product.barcode].filter(Boolean).join(" · ")}</span>
+        </div>
+      )}
+      <p className="subtle label-data-source">Productgegevens via Open Food Facts. Controleer de gevonden ingrediënten altijd op de verpakking.</p>
+      <div className="label-fallback"><span>Geen resultaat via de barcode?</span></div>
+      <div className="label-scan-actions">
         <button className="btn" type="button" disabled={scanning} onClick={()=>cameraInput.current?.click()}>
-          {scanning ? `Tekst herkennen… ${progress}%` : "📷 Scan etiket met camera"}
+          {scanning ? `Tekst herkennen… ${progress}%` : "📷 Fotografeer ingrediënten (reserve)"}
         </button>
         <input ref={cameraInput} className="sr-only" type="file" accept="image/*" capture="environment" onChange={(event)=>{const file=event.target.files?.[0];if(file)void scanLabel(file)}} />
       </div>
-      <p className="subtle label-scan-tip">Tip: vul het beeld uitsluitend met het ingrediëntenblok. Houd de verpakking zo vlak mogelijk en fotografeer zonder flits of spiegeling.</p>
+      <p className="subtle label-scan-tip">Fotoherkenning blijft minder betrouwbaar: vul het beeld uitsluitend met het ingrediëntenblok, houd de verpakking vlak en vermijd spiegeling. De foto wordt lokaal verwerkt en niet opgeslagen.</p>
       {scanning && <div className="scan-progress" role="status" aria-live="polite"><span style={{width:`${Math.max(progress,4)}%`}} /></div>}
       {scanError && <div className="notice notice-error">{scanError}</div>}
       <form onSubmit={(event) => { event.preventDefault(); setCheckedValue(value.trim()); }}>

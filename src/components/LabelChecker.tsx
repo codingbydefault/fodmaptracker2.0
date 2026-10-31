@@ -35,11 +35,31 @@ export function LabelChecker() {
   const [barcodeScanning, setBarcodeScanning] = useState(false);
   const [productLoading, setProductLoading] = useState(false);
   const [product, setProduct] = useState<ProductLookup | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoName, setPhotoName] = useState("etiket.jpg");
   const cameraInput = useRef<HTMLInputElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const scannerControls = useRef<IScannerControls | null>(null);
   const findings = checkedValue ? analyzeIngredientText(checkedValue) : [];
-  useEffect(() => () => scannerControls.current?.stop(), []);
+  const photoUrlRef = useRef<string | null>(null);
+  useEffect(() => () => {
+    scannerControls.current?.stop();
+    if (photoUrlRef.current) URL.revokeObjectURL(photoUrlRef.current);
+  }, []);
+
+  function retainPhoto(file: File) {
+    if (photoUrlRef.current) URL.revokeObjectURL(photoUrlRef.current);
+    const url = URL.createObjectURL(file);
+    photoUrlRef.current = url;
+    setPhotoUrl(url);
+    setPhotoName(file.name || `etiket-${new Date().toISOString().slice(0, 10)}.jpg`);
+  }
+
+  function removePhoto() {
+    if (photoUrlRef.current) URL.revokeObjectURL(photoUrlRef.current);
+    photoUrlRef.current = null;
+    setPhotoUrl(null);
+  }
 
   function stopBarcodeScanner() {
     scannerControls.current?.stop();
@@ -88,6 +108,7 @@ export function LabelChecker() {
     }
   }
   async function scanLabel(file: File) {
+    retainPhoto(file);
     setScanning(true); setProgress(0); setScanError(null);
     try {
       const [{ createWorker, PSM }, image] = await Promise.all([import("tesseract.js"), prepareLabelImage(file)]);
@@ -144,6 +165,17 @@ export function LabelChecker() {
         <input ref={cameraInput} className="sr-only" type="file" accept="image/*" capture="environment" onChange={(event)=>{const file=event.target.files?.[0];if(file)void scanLabel(file)}} />
       </div>
       <p className="subtle label-scan-tip">Fotoherkenning blijft minder betrouwbaar: vul het beeld uitsluitend met het ingrediëntenblok, houd de verpakking vlak en vermijd spiegeling. De foto wordt lokaal verwerkt en niet opgeslagen.</p>
+      {photoUrl && (
+        <div className="label-photo-preview">
+          <img src={photoUrl} alt="Gefotografeerd ingrediëntenetiket" />
+          <div className="label-photo-actions">
+            <a className="btn btn-secondary" href={photoUrl} download={photoName}>Foto bewaren</a>
+            <button className="btn btn-secondary" type="button" onClick={()=>cameraInput.current?.click()}>Opnieuw nemen</button>
+            <button className="btn btn-secondary" type="button" onClick={removePhoto}>Foto verwijderen</button>
+          </div>
+          <small>De foto blijft alleen in deze pagina staan totdat je ze bewaart, verwijdert of de pagina sluit.</small>
+        </div>
+      )}
       {scanning && <div className="scan-progress" role="status" aria-live="polite"><span style={{width:`${Math.max(progress,4)}%`}} /></div>}
       {scanError && <div className="notice notice-error">{scanError}</div>}
       <form onSubmit={(event) => { event.preventDefault(); setCheckedValue(value.trim()); }}>

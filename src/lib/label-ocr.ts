@@ -8,10 +8,18 @@ export function cleanRecognizedLabelText(value: string) {
 }
 
 export function readableLabelText(value: string, confidence: number) {
-  if (confidence < 55) return false;
+  if (confidence < 65) return false;
   const words = value.match(/[A-Za-zÀ-ɏ]+/g) ?? [];
   const plausible = words.filter((word) => word.length >= 3);
+  const vowelWords = plausible.filter((word) => /[aeiouyà-ÿ]/i.test(word));
   const letters = (value.match(/[A-Za-zÀ-ɏ]/g) ?? []).length;
   const symbols = (value.match(/[^\sA-Za-zÀ-ɏ0-9,.;:%()\-/]/g) ?? []).length;
-  return letters >= 25 && plausible.length >= 5 && plausible.length / Math.max(words.length, 1) >= 0.45 && symbols / Math.max(letters, 1) < 0.18;
+  const usefulCharacters = (value.match(/[A-Za-zÀ-ɏ0-9,.;:%()\-/]/g) ?? []).length;
+  const nonWhitespace = (value.match(/\S/g) ?? []).length;
+  return letters >= 35
+    && plausible.length >= 6
+    && plausible.length / Math.max(words.length, 1) >= 0.6
+    && vowelWords.length / Math.max(plausible.length, 1) >= 0.65
+    && symbols / Math.max(letters, 1) < 0.1
+    && usefulCharacters / Math.max(nonWhitespace, 1) >= 0.9;
 }

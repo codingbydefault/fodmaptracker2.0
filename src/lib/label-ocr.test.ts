@@ -8,6 +8,9 @@ describe("label OCR quality", () => {
   it("rejects low-confidence symbol-heavy OCR", () => {
     expect(readableLabelText("RAT : |: ¢ Pac #4 % ' iy 4 i # == 7 FAY 4 i.", 48)).toBe(false);
   });
+  it("rejects confident-looking gibberish with many fragments", () => {
+    expect(readableLabelText("RAT Pac FAY iy at pe pA papa PAPA Ad ya rr nde je oy ad EO sm ap di nd ne Ingrediënten", 72)).toBe(false);
+  });
   it("normalizes OCR spacing", () => {
     expect(cleanRecognizedLabelText("Ingrediënten  :  tomaat ,  water")).toBe("Ingrediënten: tomaat, water");
   });

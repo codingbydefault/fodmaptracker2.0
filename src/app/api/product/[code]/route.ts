@@ -16,10 +16,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ code
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data } = await supabase.from("product_catalog").select("ingredients_text").eq("barcode", barcode).eq("country_code", country).maybeSingle();
-      if (data) return Response.json({ barcode, name: "Product uit de catalogus", brand: `Aankoopland ${country}`, ingredients: data.ingredients_text });
-    }
+    const { data: catalogProduct } = await supabase.from("product_catalog").select("ingredients_text").eq("barcode", barcode).eq("country_code", country).maybeSingle();
+    if (catalogProduct) return Response.json(
+      { barcode, name: "Product herkend", brand: `Gedeelde catalogus · ${country}`, ingredients: catalogProduct.ingredients_text },
+      { headers: { "Cache-Control": "private, no-store, max-age=0" } },
+    );
     const fields = "code,product_name,brands,ingredients_text,ingredients_text_nl,ingredients_text_en";
     const response = await fetch(`https://world.openfoodfacts.org/api/v3/product/${barcode}.json?fields=${fields}&cc=${country.toLowerCase()}&lc=nl`, {
       headers: { "User-Agent": "Fodmap-Tracker/1.0 (https://fodmaptracker20.vercel.app)" }, next: { revalidate: 86400 },
@@ -29,7 +30,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ code
     const product = parseOpenFoodFactsProduct(await response.json());
     if (!product) return Response.json({ error: "Product niet gevonden." }, { status: 404 });
     if (user && product.ingredients) await supabase.from("product_catalog").upsert({ barcode, country_code: country, ingredients_text: product.ingredients, source: "open_food_facts", created_by: user.id }, { onConflict: "barcode,country_code", ignoreDuplicates: true });
-    return Response.json(product, { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400" } });
+    return Response.json(product, { headers: { "Cache-Control": "private, no-store, max-age=0" } });
   } catch {
     return Response.json({ error: "Productinformatie is tijdelijk niet beschikbaar." }, { status: 502 });
   }

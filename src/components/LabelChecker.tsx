@@ -76,7 +76,7 @@ export function LabelChecker() {
     setActiveBarcode(barcode);
     setProductLoading(true); setScanError(null);
     try {
-      const response = await fetch(`/api/product/${encodeURIComponent(barcode)}?country=${purchaseCountry}`);
+      const response = await fetch(`/api/product/${encodeURIComponent(barcode)}?country=${purchaseCountry}`, { cache: "no-store" });
       const result = await response.json() as ProductLookup | { error?: string };
       if (!response.ok || !("barcode" in result)) throw new Error("error" in result ? result.error : undefined);
       setProduct(result);

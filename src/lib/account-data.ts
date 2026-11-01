@@ -13,6 +13,8 @@ export type AccountExport = {
   weekly_menu_entries: AccountRow[];
   diet_phases: AccountRow[];
   recipe_likes: AccountRow[];
+  product_catalog_contributions: AccountRow[];
+  product_scan_evidence: AccountRow[];
   photos: { bucket: string; path: string }[];
 };
 
@@ -33,7 +35,7 @@ export type AccountDataClient = {
   };
 };
 
-const photoBuckets = ["meal-photos", "profile-photos"] as const;
+const photoBuckets = ["meal-photos", "profile-photos", "label-photos"] as const;
 
 const selects = {
   profiles: "id,display_name,username,avatar_path,preferred_language,timezone,health_data_consent_at,privacy_notice_version,created_at,updated_at",
@@ -43,9 +45,11 @@ const selects = {
   weekly_menu_entries: "id,user_id,recipe_id,curated_recipe_id,planned_for,meal_type,planned_servings,created_at",
   diet_phases: "id,user_id,phase_type,status,started_at,planned_end_at,ended_at,created_at",
   recipe_likes: "user_id,curated_recipe_id,created_at",
+  product_catalog: "id,barcode,country_code,ingredients_text,source,created_by,created_at,updated_at",
+  product_scan_evidence: "id,product_id,user_id,photo_path,created_at",
 } as const;
 
-export function onlyOwnedRows(rows: AccountRow[] | null | undefined, userId: string, field: "user_id" | "id"): AccountRow[] {
+export function onlyOwnedRows(rows: AccountRow[] | null | undefined, userId: string, field: "user_id" | "id" | "created_by"): AccountRow[] {
   return (rows ?? []).filter(row => row[field] === userId);
 }
 
@@ -54,7 +58,7 @@ function asRows(data: QueryResult["data"]): AccountRow[] {
   return Array.isArray(data) ? data : [data];
 }
 
-async function ownedTable(supabase: AccountDataClient, table: keyof typeof selects, userId: string, field: "user_id" | "id"): Promise<AccountRow[]> {
+async function ownedTable(supabase: AccountDataClient, table: keyof typeof selects, userId: string, field: "user_id" | "id" | "created_by"): Promise<AccountRow[]> {
   const { data, error } = await supabase.from(table).select(selects[table]).eq(field, userId);
   if (error) throw new Error(error.message);
   return onlyOwnedRows(asRows(data), userId, field);
@@ -90,7 +94,7 @@ export async function removeOwnStorage(supabase: AccountDataClient, userId: stri
 }
 
 export async function loadOwnAccountData(supabase: AccountDataClient, user: { id: string; email?: string | null }, exportedAt = new Date().toISOString()): Promise<AccountExport> {
-  const [profileRows, foodEntries, symptomEntries, recipes, weeklyMenu, dietPhases, likes, photos] = await Promise.all([
+  const [profileRows, foodEntries, symptomEntries, recipes, weeklyMenu, dietPhases, likes, catalogContributions, scanEvidence, photos] = await Promise.all([
     ownedTable(supabase, "profiles", user.id, "id"),
     ownedTable(supabase, "food_entries", user.id, "user_id"),
     ownedTable(supabase, "symptom_entries", user.id, "user_id"),
@@ -98,6 +102,8 @@ export async function loadOwnAccountData(supabase: AccountDataClient, user: { id
     ownedTable(supabase, "weekly_menu_entries", user.id, "user_id"),
     ownedTable(supabase, "diet_phases", user.id, "user_id"),
     ownedTable(supabase, "recipe_likes", user.id, "user_id"),
+    ownedTable(supabase, "product_catalog", user.id, "created_by"),
+    ownedTable(supabase, "product_scan_evidence", user.id, "user_id"),
     listOwnPhotoPaths(supabase, user.id),
   ]);
 
@@ -112,6 +118,8 @@ export async function loadOwnAccountData(supabase: AccountDataClient, user: { id
     weekly_menu_entries: weeklyMenu,
     diet_phases: dietPhases,
     recipe_likes: likes,
+    product_catalog_contributions: catalogContributions,
+    product_scan_evidence: scanEvidence,
     photos,
   };
 }

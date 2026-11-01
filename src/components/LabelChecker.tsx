@@ -27,7 +27,6 @@ async function prepareLabelImage(file: File) {
 }
 
 export function LabelChecker() {
-  const [value, setValue] = useState("");
   const [checkedValue, setCheckedValue] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -36,7 +35,11 @@ export function LabelChecker() {
   const [productLoading, setProductLoading] = useState(false);
   const [product, setProduct] = useState<ProductLookup | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-  const [photoName, setPhotoName] = useState("etiket.jpg");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [activeBarcode, setActiveBarcode] = useState<string | null>(null);
+  const [savingProduct, setSavingProduct] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [purchaseCountry, setPurchaseCountry] = useState("NL");
   const cameraInput = useRef<HTMLInputElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const scannerControls = useRef<IScannerControls | null>(null);
@@ -52,13 +55,15 @@ export function LabelChecker() {
     const url = URL.createObjectURL(file);
     photoUrlRef.current = url;
     setPhotoUrl(url);
-    setPhotoName(file.name || `etiket-${new Date().toISOString().slice(0, 10)}.jpg`);
+    setPhotoFile(file);
+    setSaveMessage(null);
   }
 
   function removePhoto() {
     if (photoUrlRef.current) URL.revokeObjectURL(photoUrlRef.current);
     photoUrlRef.current = null;
     setPhotoUrl(null);
+    setPhotoFile(null);
   }
 
   function stopBarcodeScanner() {
@@ -68,9 +73,10 @@ export function LabelChecker() {
   }
 
   async function lookupProduct(barcode: string) {
+    setActiveBarcode(barcode);
     setProductLoading(true); setScanError(null);
     try {
-      const response = await fetch(`/api/product/${encodeURIComponent(barcode)}`);
+      const response = await fetch(`/api/product/${encodeURIComponent(barcode)}?country=${purchaseCountry}`);
       const result = await response.json() as ProductLookup | { error?: string };
       if (!response.ok || !("barcode" in result)) throw new Error("error" in result ? result.error : undefined);
       setProduct(result);
@@ -78,14 +84,33 @@ export function LabelChecker() {
         setScanError(`${result.name || "Dit product"} is gevonden, maar de ingrediëntenlijst ontbreekt. Gebruik hieronder de fotoherkenning.`);
         return;
       }
-      setValue(result.ingredients); setCheckedValue(result.ingredients);
+      setCheckedValue(result.ingredients);
     } catch (error) {
       setProduct(null);
       setScanError(error instanceof Error && error.message && error.message !== "error" ? error.message : "Dit product staat nog niet in de productendatabank. Gebruik hieronder de fotoherkenning.");
     } finally { setProductLoading(false); }
   }
 
+  async function saveRecognizedProduct() {
+    if (!activeBarcode || !photoFile || !checkedValue) return;
+    setSavingProduct(true); setSaveMessage(null); setScanError(null);
+    try {
+      const form = new FormData();
+      form.set("photo", photoFile);
+      form.set("ingredients", checkedValue);
+      form.set("country", purchaseCountry);
+      const response = await fetch(`/api/product/${encodeURIComponent(activeBarcode)}`, { method: "POST", body: form });
+      const result = await response.json() as { saved?: boolean; error?: string };
+      if (!response.ok || !result.saved) throw new Error(result.error || "Opslaan mislukt.");
+      setSaveMessage("Product gedeeld in de catalogus. Deze barcode wordt in dit aankoopland voortaan meteen herkend.");
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : "Het product kon niet worden bewaard.");
+    } finally { setSavingProduct(false); }
+  }
+
   async function startBarcodeScanner() {
+    removePhoto();
+    setCheckedValue(null); setActiveBarcode(null); setSaveMessage(null);
     setScanError(null); setProduct(null); setBarcodeScanning(true);
     try {
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
@@ -109,6 +134,7 @@ export function LabelChecker() {
   }
   async function scanLabel(file: File) {
     retainPhoto(file);
+    setCheckedValue(null);
     setScanning(true); setProgress(0); setScanError(null);
     try {
       const [{ createWorker, PSM }, image] = await Promise.all([import("tesseract.js"), prepareLabelImage(file)]);
@@ -122,7 +148,7 @@ export function LabelChecker() {
         const result = await worker.recognize(image);
         const text = cleanRecognizedLabelText(result.data.text);
         if (!readableLabelText(text, result.data.confidence)) throw new Error("low-confidence");
-        setValue(text); setCheckedValue(text);
+        setCheckedValue(text); setSaveMessage(null);
       } finally { await worker.terminate(); }
     } catch {
       setScanError("De tekst was niet goed genoeg leesbaar en is daarom niet geanalyseerd. Fotografeer alleen het ingrediëntenblok van dichtbij, houd de camera recht en vermijd schittering.");
@@ -135,6 +161,12 @@ export function LabelChecker() {
         Scan eerst de barcode: zo halen we de ingrediënten op zonder kleine etikettekst te moeten ontcijferen. We signaleren alleen bekende
         aandachtspunten; dit vervangt geen producttest of diëtist.
       </p>
+      <div className="field label-country">
+        <label htmlFor="purchase-country">Land van aankoop</label>
+        <select id="purchase-country" value={purchaseCountry} onChange={(event)=>setPurchaseCountry(event.target.value)} disabled={barcodeScanning || productLoading}>
+          <option value="NL">🇳🇱 Nederland</option><option value="BE">🇧🇪 België</option><option value="DE">🇩🇪 Duitsland</option><option value="FR">🇫🇷 Frankrijk</option><option value="LU">🇱🇺 Luxemburg</option><option value="GB">🇬🇧 Verenigd Koninkrijk</option>
+        </select>
+      </div>
       <div className="label-scan-actions">
         {!barcodeScanning ? (
           <button className="btn" type="button" disabled={productLoading || scanning} onClick={()=>void startBarcodeScanner()}>
@@ -164,34 +196,26 @@ export function LabelChecker() {
         </button>
         <input ref={cameraInput} className="sr-only" type="file" accept="image/*" capture="environment" onChange={(event)=>{const file=event.target.files?.[0];if(file)void scanLabel(file)}} />
       </div>
-      <p className="subtle label-scan-tip">Fotoherkenning blijft minder betrouwbaar: vul het beeld uitsluitend met het ingrediëntenblok, houd de verpakking vlak en vermijd spiegeling. De foto wordt lokaal verwerkt en niet opgeslagen.</p>
+      <p className="subtle label-scan-tip">Fotoherkenning blijft minder betrouwbaar: vul het beeld uitsluitend met het ingrediëntenblok, houd de verpakking vlak en vermijd spiegeling. De foto blijft lokaal totdat je bewust kiest voor “Product in de app bewaren”.</p>
       {photoUrl && (
         <div className="label-photo-preview">
           <img src={photoUrl} alt="Gefotografeerd ingrediëntenetiket" />
           <div className="label-photo-actions">
-            <a className="btn btn-secondary" href={photoUrl} download={photoName}>Foto bewaren</a>
             <button className="btn btn-secondary" type="button" onClick={()=>cameraInput.current?.click()}>Opnieuw nemen</button>
             <button className="btn btn-secondary" type="button" onClick={removePhoto}>Foto verwijderen</button>
           </div>
-          <small>De foto blijft alleen in deze pagina staan totdat je ze bewaart, verwijdert of de pagina sluit.</small>
+          <small>De ingrediënten worden intern gecontroleerd en niet als ruwe tekst getoond.</small>
         </div>
       )}
       {scanning && <div className="scan-progress" role="status" aria-live="polite"><span style={{width:`${Math.max(progress,4)}%`}} /></div>}
       {scanError && <div className="notice notice-error">{scanError}</div>}
-      <form onSubmit={(event) => { event.preventDefault(); setCheckedValue(value.trim()); }}>
-        <textarea
-          name="check"
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          maxLength={4000}
-          required
-          placeholder="De herkende ingrediënten verschijnen hier automatisch…"
-          style={{ width: "100%", minHeight: 130 }}
-        />
-        <button className="btn" type="submit" style={{ marginTop: 10 }}>
-          Tekst controleren
+      {photoFile && checkedValue && activeBarcode && (
+        <button className="btn" type="button" disabled={savingProduct} onClick={()=>void saveRecognizedProduct()}>
+          {savingProduct ? "Product bewaren…" : "Product in de app bewaren"}
         </button>
-      </form>
+      )}
+      {photoFile && checkedValue && !activeBarcode && <div className="notice">Scan eerst de barcode als je dit product voor een volgende keer wilt bewaren.</div>}
+      {saveMessage && <div className="notice" role="status">{saveMessage}</div>}
       {checkedValue !== null && (
         checkedValue.length === 0 ? (
           <div className="notice notice-error">Vul eerst een ingrediëntenlijst in.</div>

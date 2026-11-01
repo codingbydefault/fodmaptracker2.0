@@ -29,7 +29,9 @@ function exportClient(rows: Record<string, AccountRow[]>): { client: AccountData
         return {
           list(folder) {
             log.push({ table: bucket, method: "list", args: [folder] });
-            const files = bucket === "meal-photos" ? [{ name: "mine.webp" }, { name: "../secret.webp" }, { name: ".emptyFolderPlaceholder" }] : [{ name: "avatar.webp" }];
+            const files = bucket === "meal-photos"
+              ? [{ name: "mine.webp" }, { name: "../secret.webp" }, { name: ".emptyFolderPlaceholder" }]
+              : bucket === "label-photos" ? [{ name: "label.webp" }] : [{ name: "avatar.webp" }];
             return Promise.resolve({ data: files, error: null });
           },
           remove(paths) {
@@ -60,7 +62,7 @@ describe("export ownership", () => {
     expect(data.symptom_entries).toHaveLength(1);
     expect(JSON.stringify(data)).not.toContain(otherUserId);
     expect(JSON.stringify(data)).not.toContain("Andermans maaltijd");
-    for (const table of ["profiles", "food_entries", "symptom_entries", "recipes", "weekly_menu_entries", "diet_phases", "recipe_likes"]) {
+    for (const table of ["profiles", "food_entries", "symptom_entries", "recipes", "weekly_menu_entries", "diet_phases", "recipe_likes", "product_catalog", "product_scan_evidence"]) {
       const filter = log.find(entry => entry.table === table && entry.method === "eq");
       expect(filter?.args[1]).toBe(userId);
       expect(filter?.args[1]).not.toBe(otherUserId);
@@ -75,10 +77,12 @@ describe("export ownership", () => {
     expect(photos).toEqual([
       { bucket: "meal-photos", path: `${userId}/mine.webp` },
       { bucket: "profile-photos", path: `${userId}/avatar.webp` },
+      { bucket: "label-photos", path: `${userId}/label.webp` },
     ]);
     await removeOwnStorage(client, userId);
     expect(removed["meal-photos"]).toEqual([`${userId}/mine.webp`]);
     expect(removed["profile-photos"]).toEqual([`${userId}/avatar.webp`]);
+    expect(removed["label-photos"]).toEqual([`${userId}/label.webp`]);
     expect(safeStorageName("../secret.webp")).toBe(false);
   });
 
@@ -112,6 +116,6 @@ describe("privacy notice draft", () => {
     expect(PRIVACY_CONTACT_EMAIL).toBe("codedbydefault@gmail.com");
     expect(notice.regionTodo).toContain("TODO");
     expect(notice.draft.toLowerCase()).toContain("concept");
-    expect(PRIVACY_NOTICE_VERSION).toBe("2026-10-31");
+    expect(PRIVACY_NOTICE_VERSION).toBe("2026-11-01");
   });
 });

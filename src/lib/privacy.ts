@@ -1,6 +1,6 @@
 import type { AppLanguage } from "@/lib/i18n";
 
-export const PRIVACY_NOTICE_VERSION = "2026-10-31";
+export const PRIVACY_NOTICE_VERSION = "2026-11-01";
 
 export const PRIVACY_CONTACT_EMAIL = "codedbydefault@gmail.com";
 
@@ -55,6 +55,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
           "Profiel: naam, gebruikersnaam, profielfoto, voorkeurstaal, tijdzone, het tijdstip van je toestemming voor gezondheidsgegevens en de versie van deze verklaring die je hebt aanvaard.",
           "Gezondheidsgegevens: maaltijden (naam, eetmoment, hoeveelheid, notities, tijdstip en een optionele foto), klachten (soort, eigen omschrijving, ernst van 0 tot 10, notities, tijdstip en een optionele koppeling aan een maaltijd) en de dieetfase die je zelf start.",
           "Recepten en weekmenu: recepten die je zelf invoert, of je ze privé houdt of deelt met andere ingelogde gebruikers, favorieten, en de planning per dag en eetmoment.",
+          "Etiketcontrole: als je uitdrukkelijk kiest voor ‘Product in de app bewaren’, delen we de barcode, het land van aankoop en de intern herkende ingrediënten in de productencatalogus zodat andere gebruikers het product niet opnieuw hoeven te fotograferen. De etiketfoto zelf blijft privé bij jouw account.",
           "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Vercel Analytics en Speed Insights kunnen anonieme gebruiks- en prestatiemetingen van pagina’s ontvangen. Die metingen bevatten niet de inhoud van je dagboek.",
         ],
       },
@@ -73,7 +74,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
         heading: "Waar de gegevens staan",
         paragraphs: [
           "De database, de accounts en de privéfoto’s staan bij Supabase. De website wordt gehost bij Vercel. Dat zijn verwerkers. Er hoort een verwerkersovereenkomst met hen te zijn voordat de app openbaar wordt aangeboden.",
-          "Foto’s staan in privé-opslag (buckets meal-photos en profile-photos) en zijn niet openbaar. De app toont ze via een tijdelijke link.",
+          "Foto’s staan in privé-opslag (buckets meal-photos, profile-photos en label-photos) en zijn niet openbaar. De app toont ze alleen waar nodig via een tijdelijke link.",
         ],
       },
       {

@@ -13,7 +13,7 @@ Mobile-first Nederlandse webapp voor het registreren van voeding en symptomen. D
 - Persoonlijke recepten zoeken, bekijken, aanmaken en verwijderen
 - Recepten per dag en eetmoment in een weekmenu plannen
 - Maaltijden en klachten bewerken, aan elkaar koppelen en van vrije notities voorzien
-- Privéfoto's bij maaltijden via een afgeschermde Supabase Storage-bucket
+- Privéfoto's bij maaltijden en bewaarde etiketscans via afgeschermde Supabase Storage-buckets
 - Profiel met unieke gebruikersnaam en privéprofielfoto
 - Herstartbare eliminatiefase van 28 dagen met dagteller en dagelijkse tips
 - Bronvermelde low-FODMAP-receptsuggesties en persoonlijke favorieten

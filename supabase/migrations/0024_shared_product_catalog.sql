@@ -14,6 +14,8 @@ create table if not exists public.product_scan_evidence (
 );
 alter table public.product_catalog enable row level security;
 alter table public.product_scan_evidence enable row level security;
+grant select, insert, delete on table public.product_catalog to authenticated;
+grant select, insert, update, delete on table public.product_scan_evidence to authenticated;
 create policy "product_catalog_read_authenticated" on public.product_catalog for select to authenticated using (true);
 create policy "product_catalog_insert_authenticated" on public.product_catalog for insert to authenticated with check ((select auth.uid()) = created_by);
 create policy "product_catalog_delete_creator" on public.product_catalog for delete to authenticated using ((select auth.uid()) = created_by);

@@ -3,6 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { optimizeUploadedImage } from "@/lib/image-processing";
 
 const countryCode = (value: string | null) => /^[A-Z]{2}$/.test(value ?? "") ? value! : "NL";
+const saveErrors = new Set([
+  "De productcatalogus kon niet worden bijgewerkt.",
+  "De etiketfoto kon niet privé worden opgeslagen.",
+  "De foto kon niet aan het product worden gekoppeld.",
+]);
 
 export async function GET(request: Request, { params }: { params: Promise<{ code: string }> }) {
   const barcode = normalizeBarcode((await params).code);
@@ -47,7 +52,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
       const inserted = await supabase.from("product_catalog").insert({ barcode, country_code: country, ingredients_text: ingredients, created_by: user.id }).select("id").single();
       if (inserted.error) {
         const retry = await supabase.from("product_catalog").select("id").eq("barcode", barcode).eq("country_code", country).maybeSingle();
-        if (!retry.data) throw inserted.error;
+        if (!retry.data) throw new Error("De productcatalogus kon niet worden bijgewerkt.");
         product = retry.data;
       } else product = inserted.data;
     }
@@ -55,12 +60,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ cod
     const { data: previous } = await supabase.from("product_scan_evidence").select("photo_path").eq("user_id", user.id).eq("product_id", product.id).maybeSingle();
     const photoPath = `${user.id}/${barcode}-${crypto.randomUUID()}.webp`;
     const { error: uploadError } = await supabase.storage.from("label-photos").upload(photoPath, optimized, { contentType: "image/webp", upsert: false });
-    if (uploadError) throw uploadError;
+    if (uploadError) throw new Error("De etiketfoto kon niet privé worden opgeslagen.");
     const { error: saveError } = await supabase.from("product_scan_evidence").upsert({ user_id: user.id, product_id: product.id, photo_path: photoPath }, { onConflict: "product_id,user_id" });
-    if (saveError) { await supabase.storage.from("label-photos").remove([photoPath]); throw saveError; }
+    if (saveError) { await supabase.storage.from("label-photos").remove([photoPath]); throw new Error("De foto kon niet aan het product worden gekoppeld."); }
     if (previous?.photo_path) await supabase.storage.from("label-photos").remove([previous.photo_path]);
     return Response.json({ saved: true });
-  } catch {
-    return Response.json({ error: "Het product kon niet worden bewaard." }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error && saveErrors.has(error.message) ? error.message : "Het product kon niet worden bewaard.";
+    console.error("[product-save]", error instanceof Error ? error.message : "unknown");
+    return Response.json({ error: message }, { status: 500 });
   }
 }

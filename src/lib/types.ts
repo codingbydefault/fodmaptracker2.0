@@ -101,6 +101,8 @@ export interface CuratedRecipe {
   instructions: string;
   attribution_note: string;
   phase_note: string;
+  recipe_role?: "general" | "reintroduction";
+  reintroduction_group?: FodmapGroup | null;
   liked: boolean;
 }
 export type FodmapGroup =

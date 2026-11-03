@@ -268,7 +268,7 @@ export async function getCuratedRecipes(): Promise<CuratedRecipe[]> {
     supabase
       .from("curated_recipes")
       .select(
-        "id,title,summary,category,source_name,source_url,suitable_for_elimination,servings,preparation_minutes,ingredients,instructions,attribution_note,phase_note",
+        "id,title,summary,category,source_name,source_url,suitable_for_elimination,servings,preparation_minutes,ingredients,instructions,attribution_note,phase_note,recipe_role,reintroduction_group",
       )
       .eq("published", true)
       .order("title"),
@@ -286,6 +286,19 @@ export async function getCuratedRecipes(): Promise<CuratedRecipe[]> {
     ...recipe,
     liked: liked.has(recipe.id),
   })) as CuratedRecipe[];
+}
+
+export async function getReintroductionRecipes(group: FodmapGroup): Promise<CuratedRecipe[]> {
+  const { supabase, user } = await requireUser();
+  const [{ data, error }, { data: likes }] = await Promise.all([
+    supabase.from("curated_recipes")
+      .select("id,title,summary,category,source_name,source_url,suitable_for_elimination,servings,preparation_minutes,ingredients,instructions,attribution_note,phase_note,recipe_role,reintroduction_group")
+      .eq("published", true).eq("recipe_role", "reintroduction").eq("reintroduction_group", group).order("title"),
+    supabase.from("recipe_likes").select("curated_recipe_id").eq("user_id", user.id),
+  ]);
+  if (error) throw new Error("De herintroductierecepten konden niet worden geladen.");
+  const liked = new Set((likes ?? []).map((item) => item.curated_recipe_id as string));
+  return (data ?? []).map((recipe) => ({ ...recipe, liked: liked.has(recipe.id) })) as CuratedRecipe[];
 }
 export async function getCuratedRecipe(
   id: string,

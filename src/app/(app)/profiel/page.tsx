@@ -16,6 +16,7 @@ import { startEliminationPhase, updateProfile } from "@/lib/profile-actions";
 import { appCopy } from "@/lib/app-copy";
 import { appLanguage } from "@/lib/i18n";
 import { workflowCopy } from "@/lib/workflow-copy";
+import { profilePrivacyCopy } from "@/lib/profile-privacy-copy";
 
 export const metadata = { title: "Profiel" };
 
@@ -38,7 +39,47 @@ export default async function ProfilePage({
   const language = appLanguage(profile.preferred_language);
   const pageText = appCopy[language].pages;
   const text = workflowCopy[language].profile;
-  const extra=language==="en"?{ownRecipe:"Own recipe",favourites:"Favourites",suggested:"Suggested for you",privacy:"Privacy and your data",edit:"Edit details",language:"Preferred language",save:"Save changes"}:language==="fr"?{ownRecipe:"Recette personnelle",favourites:"Favoris",suggested:"Suggestions pour vous",privacy:"Confidentialité et vos données",edit:"Modifier les données",language:"Langue préférée",save:"Enregistrer"}:language==="de"?{ownRecipe:"Eigenes Rezept",favourites:"Favoriten",suggested:"Für dich vorgeschlagen",privacy:"Datenschutz und deine Daten",edit:"Daten bearbeiten",language:"Bevorzugte Sprache",save:"Änderungen speichern"}:{ownRecipe:"Eigen recept",favourites:"Favorieten",suggested:"Voorgesteld voor jou",privacy:"Privacy en je gegevens",edit:"Gegevens aanpassen",language:"Gewenste taal",save:"Wijzigingen opslaan"};
+  const privacyUi = profilePrivacyCopy[language];
+  const extra =
+    language === "en"
+      ? {
+          ownRecipe: "Own recipe",
+          favourites: "Favourites",
+          suggested: "Suggested for you",
+          privacy: "Privacy and your data",
+          edit: "Edit details",
+          language: "Preferred language",
+          save: "Save changes",
+        }
+      : language === "fr"
+        ? {
+            ownRecipe: "Recette personnelle",
+            favourites: "Favoris",
+            suggested: "Suggestions pour vous",
+            privacy: "Confidentialité et vos données",
+            edit: "Modifier les données",
+            language: "Langue préférée",
+            save: "Enregistrer",
+          }
+        : language === "de"
+          ? {
+              ownRecipe: "Eigenes Rezept",
+              favourites: "Favoriten",
+              suggested: "Für dich vorgeschlagen",
+              privacy: "Datenschutz und deine Daten",
+              edit: "Daten bearbeiten",
+              language: "Bevorzugte Sprache",
+              save: "Änderungen speichern",
+            }
+          : {
+              ownRecipe: "Eigen recept",
+              favourites: "Favorieten",
+              suggested: "Voorgesteld voor jou",
+              privacy: "Privacy en je gegevens",
+              edit: "Gegevens aanpassen",
+              language: "Gewenste taal",
+              save: "Wijzigingen opslaan",
+            };
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "Europe/Amsterdam",
   });
@@ -123,21 +164,15 @@ export default async function ProfilePage({
             <div>
               <dt>{text.username}</dt>
               <dd>
-                {profile.username
-                  ? `@${profile.username}`
-                  : text.missing}
+                {profile.username ? `@${profile.username}` : text.missing}
               </dd>
             </div>
             <div>
               <dt>{text.photo}</dt>
-              <dd>
-                {profile.avatar_path ? text.set : text.missing}
-              </dd>
+              <dd>{profile.avatar_path ? text.set : text.missing}</dd>
             </div>
           </dl>
-          <p className="footer-note">
-            {text.hint}
-          </p>
+          <p className="footer-note">{text.hint}</p>
         </section>
         <section className="card">
           <div className="eyebrow">{text.guidance}</div>
@@ -168,15 +203,11 @@ export default async function ProfilePage({
                 .
               </p>
               {phasePlanComplete && (
-                <p>
-                  {workflowCopy[language].phase.completeBody}
-                </p>
+                <p>{workflowCopy[language].phase.completeBody}</p>
               )}
             </>
           ) : (
-            <p className="subtle">
-              {text.none}
-            </p>
+            <p className="subtle">{text.none}</p>
           )}
           <form action={startEliminationPhase}>
             <label
@@ -199,14 +230,10 @@ export default async function ProfilePage({
               <span>{text.safety}</span>
             </label>
             <SubmitButton className="btn btn-secondary">
-              {phaseDay
-                ? text.restart
-                : text.start}
+              {phaseDay ? text.restart : text.start}
             </SubmitButton>
           </form>
-          <p className="footer-note">
-            {text.restartNote}
-          </p>
+          <p className="footer-note">{text.restartNote}</p>
         </section>
       </div>
       <DietSafetyNotice language={language} />
@@ -232,7 +259,7 @@ export default async function ProfilePage({
         </div>
         <h3 className="section-title">{text.myRecipes}</h3>
         {ownRecipes.length === 0 ? (
-            <div className="card empty">{text.noRecipes}</div>
+          <div className="card empty">{text.noRecipes}</div>
         ) : (
           <RecipeCarousel
             kind="own"
@@ -275,33 +302,30 @@ export default async function ProfilePage({
       <section className="card" style={{ marginTop: 22 }}>
         <h2 className="section-title">{extra.privacy}</h2>
         <p className="subtle">
-          Versie van de verklaring: {PRIVACY_NOTICE_VERSION}.{" "}
+          {privacyUi.version}: {PRIVACY_NOTICE_VERSION}.{" "}
           <Link
             href="/privacy"
             style={{ color: "var(--green)", fontWeight: 700 }}
           >
-            Privacyverklaring
+            {privacyUi.notice}
           </Link>
         </p>
         {profile.health_data_consent_at ? (
           <p>
-            Toestemming voor gezondheidsgegevens vastgelegd op{" "}
-            {new Intl.DateTimeFormat("nl-NL", {
+            {privacyUi.consent}{" "}
+            {new Intl.DateTimeFormat(language, {
               dateStyle: "long",
               timeStyle: "short",
               timeZone: "Europe/Amsterdam",
             }).format(new Date(profile.health_data_consent_at))}
             {profile.privacy_notice_version
-              ? ` (versie ${profile.privacy_notice_version})`
+              ? ` (${privacyUi.versionWord} ${profile.privacy_notice_version})`
               : ""}
             .
           </p>
         ) : (
           <form action={recordHealthConsent}>
-            <p className="subtle">
-              Voor dit account is nog geen toestemming voor gezondheidsgegevens
-              vastgelegd.
-            </p>
+            <p className="subtle">{privacyUi.missing}</p>
             <label
               className="filter-check"
               htmlFor="health_consent"
@@ -315,15 +339,10 @@ export default async function ProfilePage({
                 required
                 style={{ marginTop: 4 }}
               />
-              <span>
-                Ik geef uitdrukkelijk toestemming zoals beschreven in de
-                privacyverklaring.
-              </span>
+              <span>{privacyUi.agree}</span>
             </label>
             <div className="form-actions">
-              <SubmitButton className="btn">
-                Toestemming vastleggen
-              </SubmitButton>
+              <SubmitButton className="btn">{privacyUi.record}</SubmitButton>
             </div>
           </form>
         )}
@@ -332,38 +351,33 @@ export default async function ProfilePage({
             Download JSON
           </a>
           <a className="btn btn-secondary" href="/account/export?format=meals">
-            CSV maaltijden
+            {privacyUi.meals}
           </a>
           <a
             className="btn btn-secondary"
             href="/account/export?format=symptoms"
           >
-            CSV klachten
+            {privacyUi.symptoms}
           </a>
         </div>
         <form action={deleteOwnAccount} style={{ marginTop: 18 }}>
-          <h3 className="section-title">Account verwijderen</h3>
-          <p className="subtle">
-            Dit wist je dagboek, foto’s, recepten, weekmenu, profiel en het
-            account. Dit kan niet ongedaan worden.
-          </p>
+          <h3 className="section-title">{privacyUi.delete}</h3>
+          <p className="subtle">{privacyUi.deleteBody}</p>
           <div className="field">
-            <label htmlFor="confirm_delete">
-              Typ VERWIJDER om te bevestigen
-            </label>
+            <label htmlFor="confirm_delete">{privacyUi.type}</label>
             <input
               id="confirm_delete"
               name="confirm_delete"
               autoComplete="off"
               required
-              pattern="VERWIJDER"
+              pattern={privacyUi.pattern}
             />
           </div>
           <SubmitButton
             className="btn btn-danger"
-            confirmMessage="Je account en alle gegevens worden definitief verwijderd. Doorgaan?"
+            confirmMessage={privacyUi.confirm}
           >
-            Account verwijderen
+            {privacyUi.delete}
           </SubmitButton>
         </form>
       </section>
@@ -396,7 +410,7 @@ export default async function ProfilePage({
                     pattern="[A-Za-z0-9_]+"
                   />
                   <span className="subtle" style={{ fontSize: 11 }}>
-                    3–30 tekens: letters, cijfers en underscore.
+                    {privacyUi.usernameHelp}
                   </span>
                 </div>
                 <div className="field">
@@ -413,7 +427,7 @@ export default async function ProfilePage({
                   </select>
                 </div>
                 <div className="field span-2">
-                  <label htmlFor="avatar">Nieuwe profielfoto</label>
+                  <label htmlFor="avatar">{privacyUi.photo}</label>
                   <input
                     id="avatar"
                     name="avatar"
@@ -421,8 +435,7 @@ export default async function ProfilePage({
                     accept="image/jpeg,image/png,image/webp"
                   />
                   <span className="subtle" style={{ fontSize: 11 }}>
-                    Laat leeg om je huidige foto te behouden. Maximaal 3 MB;
-                    opslag als WebP van maximaal 800×800.
+                    {privacyUi.photoHelp}
                   </span>
                 </div>
               </div>

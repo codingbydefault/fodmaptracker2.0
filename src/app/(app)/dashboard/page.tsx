@@ -23,7 +23,7 @@ export default async function Dashboard() {
     getRequestLanguage(),
   ]);
   const text = appCopy[language].dashboard;
-  const phaseText=workflowCopy[language].phase;
+  const phaseText = workflowCopy[language].phase;
   const mealLabels = localizedMealNames[language];
   const symptomLabels = localizedSymptomNames[language];
   const halloween = isHalloweenToday();
@@ -84,14 +84,33 @@ export default async function Dashboard() {
   const phasePlanComplete = Boolean(
     rawEliminationDay && rawEliminationDay > 28,
   );
-  const tip = eliminationDay
-    ? [
-        "Plan vandaag één eenvoudige maaltijd vooruit.",
-        "Controleer porties; ook low-FODMAP ingrediënten kunnen stapelen.",
-        "Noteer klachten zo snel mogelijk na de maaltijd.",
-        "Kies voor variatie binnen wat je goed verdraagt.",
-      ][eliminationDay % 4]
-    : null;
+  const phaseTips = {
+    nl: [
+      "Plan vandaag één eenvoudige maaltijd vooruit.",
+      "Controleer porties; ook low-FODMAP ingrediënten kunnen stapelen.",
+      "Noteer klachten zo snel mogelijk na de maaltijd.",
+      "Kies voor variatie binnen wat je goed verdraagt.",
+    ],
+    en: [
+      "Plan one simple meal ahead today.",
+      "Check portions; low-FODMAP ingredients can still add up.",
+      "Record symptoms as soon as possible after a meal.",
+      "Choose variety among the foods you tolerate well.",
+    ],
+    fr: [
+      "Planifiez aujourd’hui un repas simple à l’avance.",
+      "Vérifiez les portions ; les ingrédients pauvres en FODMAP peuvent aussi s’additionner.",
+      "Notez les symptômes dès que possible après le repas.",
+      "Variez les aliments que vous tolérez bien.",
+    ],
+    de: [
+      "Plane heute eine einfache Mahlzeit im Voraus.",
+      "Achte auf Portionen; auch Low-FODMAP-Zutaten können sich summieren.",
+      "Notiere Beschwerden möglichst bald nach der Mahlzeit.",
+      "Sorge für Abwechslung bei gut verträglichen Lebensmitteln.",
+    ],
+  };
+  const tip = eliminationDay ? phaseTips[language][eliminationDay % 4] : null;
   const nextActions = [
     todaysFoods.length === 0
       ? {
@@ -141,11 +160,7 @@ export default async function Dashboard() {
                 ? phaseText.complete
                 : `${phaseText.day} ${eliminationDay} ${phaseText.of} 28`}
             </strong>
-            <span>
-              {phasePlanComplete
-                ? phaseText.completeBody
-                : tip}
-            </span>
+            <span>{phasePlanComplete ? phaseText.completeBody : tip}</span>
             <Link href="/profiel">{phaseText.view} →</Link>
           </div>
         )}
@@ -329,8 +344,13 @@ export default async function Dashboard() {
         </div>
       </section>
       <p className="footer-note">
-        Registraties tonen persoonlijke ervaringen en bewijzen geen
-        oorzaak-gevolgrelatie tussen een maaltijd en een klacht.
+        {language === "en"
+          ? "Entries reflect personal experiences and do not prove that a meal caused a symptom."
+          : language === "fr"
+            ? "Les entrées reflètent des expériences personnelles et ne prouvent pas qu’un repas a causé un symptôme."
+            : language === "de"
+              ? "Einträge zeigen persönliche Erfahrungen und beweisen keinen ursächlichen Zusammenhang zwischen Mahlzeit und Beschwerden."
+              : "Registraties tonen persoonlijke ervaringen en bewijzen geen oorzaak-gevolgrelatie tussen een maaltijd en een klacht."}
       </p>
     </AppShell>
   );

@@ -12,14 +12,14 @@ export default async function SymptomPage({
 }: {
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
-  const [{ user }, entries, foods, params,language] = await Promise.all([
+  const [{ user }, entries, foods, params, language] = await Promise.all([
     requireUser(),
     getSymptomEntries(100),
     getFoodEntries(30),
     searchParams,
     getRequestLanguage(),
   ]);
-  const symptomNames=localizedSymptomNames[language];
+  const symptomNames = localizedSymptomNames[language];
   return (
     <AppShell active="klachten" email={user.email ?? "Account"}>
       <header style={{ marginBottom: 20 }}>
@@ -226,8 +226,13 @@ export default async function SymptomPage({
         </section>
       </div>
       <p className="footer-note">
-        Symptoomregistraties zijn subjectieve ervaringen en stellen geen
-        diagnose.
+        {language === "en"
+          ? "Symptom entries are subjective experiences and do not provide a diagnosis."
+          : language === "fr"
+            ? "Les symptômes enregistrés sont des expériences subjectives et ne constituent pas un diagnostic."
+            : language === "de"
+              ? "Beschwerdeeinträge sind subjektive Erfahrungen und stellen keine Diagnose dar."
+              : "Symptoomregistraties zijn subjectieve ervaringen en stellen geen diagnose."}
       </p>
     </AppShell>
   );

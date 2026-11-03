@@ -7,6 +7,7 @@ import { optimizeUploadedImage } from "@/lib/image-processing";
 import { appLanguage } from "@/lib/i18n";
 import { idSchema, profileSchema } from "@/lib/validation";
 import { fodmapGroups } from "@/lib/fodmap-guide";
+import { z } from "zod";
 
 const field = (form: FormData, name: string) => String(form.get(name) ?? "");
 
@@ -107,10 +108,14 @@ export async function updateFodmapPreferences(form: FormData) {
 export async function startEliminationPhase(form: FormData) {
   if (field(form, "safety_acknowledgement") !== "yes")
     redirect("/profiel?error=fase-veiligheid");
+  const duration = z.coerce.number().int().min(14).max(42).safeParse(
+    field(form, "duration_days"),
+  );
+  if (!duration.success) redirect("/profiel?error=fase-duur");
   const { supabase, user } = await requireUser();
   const today = new Date();
   const plannedEnd = new Date(today);
-  plannedEnd.setDate(plannedEnd.getDate() + 27);
+  plannedEnd.setDate(plannedEnd.getDate() + duration.data - 1);
   const iso = (date: Date) =>
     date.toLocaleDateString("en-CA", { timeZone: "Europe/Amsterdam" });
   const { error: endError } = await supabase

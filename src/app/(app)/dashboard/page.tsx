@@ -17,6 +17,7 @@ import { localizedMealNames, localizedSymptomNames } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { appCopy } from "@/lib/app-copy";
 import { workflowCopy } from "@/lib/workflow-copy";
+import { eliminationSchedule } from "@/lib/diet-phase";
 export const metadata = { title: "Overzicht" };
 export default async function Dashboard() {
   const [{ user }, language] = await Promise.all([
@@ -70,22 +71,11 @@ export default async function Dashboard() {
     "7d": severityStat(symptomsInLastDays(7)),
     "30d": severityStat(symptomsInLastDays(30)),
   };
-  const rawEliminationDay =
-    phase?.phase_type === "elimination"
-      ? Math.max(
-          1,
-          Math.floor(
-            (new Date(today).getTime() - new Date(phase.started_at).getTime()) /
-              86400000,
-          ) + 1,
-        )
-      : null;
-  const eliminationDay = rawEliminationDay
-    ? Math.min(rawEliminationDay, 28)
+  const elimination = phase?.phase_type === "elimination"
+    ? eliminationSchedule(phase, today)
     : null;
-  const phasePlanComplete = Boolean(
-    rawEliminationDay && rawEliminationDay > 28,
-  );
+  const eliminationDay = elimination?.currentDay ?? null;
+  const phasePlanComplete = elimination?.complete ?? false;
   const phaseTips = {
     nl: [
       "Plan vandaag één eenvoudige maaltijd vooruit.",
@@ -115,14 +105,14 @@ export default async function Dashboard() {
   const tip = eliminationDay ? phaseTips[language][eliminationDay % 4] : null;
   const rotatingTip = Math.floor(new Date(`${today}T12:00:00Z`).getTime() / 86400000) % 3;
   const phaseGuide = (() => {
-    if (phase?.phase_type === "elimination" && !phasePlanComplete) {
+    if (elimination && !phasePlanComplete) {
       return {
         title: phaseText.eliminationTitle,
-        body: `${phaseText.day} ${eliminationDay} ${phaseText.of} 28`,
+        body: `${phaseText.day} ${eliminationDay} ${phaseText.of} ${elimination.plannedDays}`,
         tip: tip ?? phaseText.startTips[rotatingTip],
         href: "/profiel",
         action: phaseText.view,
-        progress: eliminationDay ? (eliminationDay / 28) * 100 : 0,
+        progress: eliminationDay ? (eliminationDay / elimination.plannedDays) * 100 : 0,
       };
     }
     if (journey.activeChallenge || phase?.phase_type === "reintroduction") {

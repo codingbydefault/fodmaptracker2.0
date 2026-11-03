@@ -17,6 +17,7 @@ import { appCopy } from "@/lib/app-copy";
 import { appLanguage } from "@/lib/i18n";
 import { workflowCopy } from "@/lib/workflow-copy";
 import { profilePrivacyCopy } from "@/lib/profile-privacy-copy";
+import { eliminationSchedule } from "@/lib/diet-phase";
 
 export const metadata = { title: "Profiel" };
 
@@ -110,18 +111,11 @@ export default async function ProfilePage({
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "Europe/Amsterdam",
   });
-  const rawPhaseDay =
-    phase?.phase_type === "elimination"
-      ? Math.max(
-          1,
-          Math.floor(
-            (new Date(today).getTime() - new Date(phase.started_at).getTime()) /
-              86400000,
-          ) + 1,
-        )
-      : null;
-  const phaseDay = rawPhaseDay ? Math.min(rawPhaseDay, 28) : null;
-  const phasePlanComplete = Boolean(rawPhaseDay && rawPhaseDay > 28);
+  const elimination = phase?.phase_type === "elimination"
+    ? eliminationSchedule(phase, today)
+    : null;
+  const phaseDay = elimination?.currentDay ?? null;
+  const phasePlanComplete = elimination?.complete ?? false;
   const liked = suggestions.filter((recipe) => recipe.liked);
   return (
     <AppShell
@@ -157,7 +151,7 @@ export default async function ProfilePage({
       {params.message && (
         <div className="notice">
           {params.message === "eliminatie-gestart"
-            ? "Je nieuwe eliminatiefase van 28 dagen is gestart."
+            ? text.startedMessage
             : params.message === "toestemming"
               ? "Je toestemming voor gezondheidsgegevens is vastgelegd."
               : "Je profiel is bijgewerkt."}
@@ -175,6 +169,8 @@ export default async function ProfilePage({
                   ? "Het account kon niet worden verwijderd. Probeer opnieuw of gebruik de pagina Account verwijderen."
                   : params.error === "toestemming"
                     ? "De toestemming kon niet worden vastgelegd. Vink het vak aan en probeer opnieuw."
+                    : params.error === "fase-duur"
+                      ? text.durationError
                     : params.error === "fase-veiligheid"
                       ? "Lees de veiligheidsinformatie en bevestig deze voordat je de teller start."
                       : "Opslaan is niet gelukt. Probeer opnieuw."}
@@ -214,7 +210,7 @@ export default async function ProfilePage({
                     {text.day} {phaseDay}
                     <span style={{ fontSize: 13, color: "var(--muted)" }}>
                       {" "}
-                      / 28
+                      / {elimination?.plannedDays ?? 28}
                     </span>
                   </>
                 )}
@@ -237,6 +233,21 @@ export default async function ProfilePage({
             <p className="subtle">{text.none}</p>
           )}
           <form action={startEliminationPhase}>
+            <div className="field" style={{ marginBottom: 12 }}>
+              <label htmlFor="duration_days">{text.durationLabel}</label>
+              <input
+                id="duration_days"
+                name="duration_days"
+                type="number"
+                min={14}
+                max={42}
+                step={1}
+                defaultValue={28}
+                inputMode="numeric"
+                required
+              />
+              <small>{text.durationHelp}</small>
+            </div>
             <label
               className="filter-check"
               htmlFor="safety_acknowledgement"

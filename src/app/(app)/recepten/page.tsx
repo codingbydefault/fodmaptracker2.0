@@ -39,13 +39,13 @@ export default async function RecipesPage({searchParams}:{searchParams:Promise<R
   </section>
 
   <div className="section-heading recipe-section-heading"><div><div className="eyebrow">Alle bronrecepten</div><h2 className="page-title" style={{fontSize:27}}>{suggestions.length} recept{suggestions.length===1?"":"en"}</h2></div><span className="subtle">Scroll om alles te bekijken</span></div>
-  {suggestions.length===0?<section className="card empty"><p>Geen recepten passen bij deze filters.</p><Link href="/recepten" style={{color:"var(--green)",fontWeight:700}}>Bekijk alle recepten →</Link></section>:<RecipeCarousel kind="curated" recipes={suggestions} label="Alle bronrecepten"/>}
+  {suggestions.length===0?<section className="card empty"><p>Geen recepten passen bij deze filters.</p><Link href="/recepten" style={{color:"var(--green)",fontWeight:700}}>Bekijk alle recepten →</Link></section>:<RecipeCarousel kind="curated" recipes={suggestions} label="Alle bronrecepten" language={language}/>}
 
   <div className="section-heading own-recipes-heading"><div><div className="eyebrow">Van de community</div><h2 className="page-title" style={{fontSize:27}}>{community.length} gedeeld{community.length===1?" recept":"e recepten"}</h2></div></div>
-  {community.length===0?<section className="card empty">Er zijn nog geen recepten door andere gebruikers gedeeld.</section>:<RecipeCarousel kind="community" recipes={community} label="Door gebruikers gedeelde recepten"/>}
+  {community.length===0?<section className="card empty">Er zijn nog geen recepten door andere gebruikers gedeeld.</section>:<RecipeCarousel kind="community" recipes={community} label="Door gebruikers gedeelde recepten" language={language}/>}
 
   <div className="section-heading own-recipes-heading"><div><div className="eyebrow">Jouw verzameling</div><h2 className="page-title" style={{fontSize:27}}>{recipes.length} eigen recept{recipes.length===1?"":"en"}</h2></div><Link className="btn" href="/recepten/nieuw">+ Nieuw recept</Link></div>
-  {recipes.length===0?<section className="card empty"><p>{query?"Geen eigen recepten gevonden met deze zoekterm.":"Je hebt nog geen eigen recepten opgeslagen."}</p><Link href="/recepten/nieuw" style={{color:"var(--green)",fontWeight:700}}>Maak je eerste recept →</Link></section>:<RecipeCarousel kind="own" recipes={recipes} label="Jouw eigen recepten"/>}
+  {recipes.length===0?<section className="card empty"><p>{query?"Geen eigen recepten gevonden met deze zoekterm.":"Je hebt nog geen eigen recepten opgeslagen."}</p><Link href="/recepten/nieuw" style={{color:"var(--green)",fontWeight:700}}>Maak je eerste recept →</Link></section>:<RecipeCarousel kind="own" recipes={recipes} label="Jouw eigen recepten" language={language}/>}
   <p className="footer-note">Eigen recepten zijn persoonlijke notities. Bronadaptaties zijn geen medisch advies; portiegrootte en individuele tolerantie blijven bepalend.</p>
  </AppShell>;
 }

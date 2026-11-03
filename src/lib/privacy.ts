@@ -1,6 +1,6 @@
 import type { AppLanguage } from "@/lib/i18n";
 
-export const PRIVACY_NOTICE_VERSION = "2026-11-03.1";
+export const PRIVACY_NOTICE_VERSION = "2026-11-03.2";
 
 export const PRIVACY_CONTACT_EMAIL = "codedbydefault@gmail.com";
 
@@ -57,6 +57,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
           "Recepten en weekmenu: recepten die je zelf invoert, of je ze privé houdt of deelt met andere ingelogde gebruikers, favorieten, en de planning per dag en eetmoment.",
           "Etiketcontrole: als je uitdrukkelijk kiest voor ‘Product in de app bewaren’, delen we de barcode, het land van aankoop en de intern herkende ingrediënten in de productencatalogus zodat andere gebruikers het product niet opnieuw hoeven te fotograferen. De etiketfoto zelf blijft privé bij jouw account.",
           "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Voor onze eigen bezoekersteller bewaren we in je browser een willekeurige anonieme code en per browsersessie een tijdelijke code. In de database staan daarvan alleen onomkeerbare hashes, eerste en laatste bezoek en het aantal sessies; geen IP-adres, browserkenmerken, e-mailadres of dagboekinhoud. Vercel Analytics en Speed Insights kunnen daarnaast anonieme gebruiks- en prestatiemetingen van pagina’s ontvangen.",
+          "Vertaling: wanneer je Engels, Frans of Duits kiest, kunnen uitsluitend teksten van Fodmap-Tracker-recepten naar de vertaaldienst MyMemory worden gestuurd. Persoonlijke dagboekgegevens en recepten van gebruikers worden niet voor automatische vertaling verzonden. Vertalingen worden in je browser opgeslagen om herhaalde aanvragen te beperken.",
         ],
       },
       {

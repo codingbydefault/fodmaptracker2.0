@@ -216,6 +216,52 @@ export async function getActiveDietPhase(): Promise<DietPhase | null> {
   return data as DietPhase | null;
 }
 
+export interface DietJourneySummary {
+  hasEliminationHistory: boolean;
+  activeChallenge: { id: string; test_food: string } | null;
+  activeChallengeDays: number;
+  toleranceCount: number;
+}
+
+export async function getDietJourneySummary(): Promise<DietJourneySummary> {
+  const { supabase, user } = await requireUser();
+  const [elimination, challenge, tolerance] = await Promise.all([
+    supabase
+      .from("diet_phases")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("phase_type", "elimination"),
+    supabase
+      .from("reintroduction_challenges")
+      .select("id,test_food")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle(),
+    supabase
+      .from("fodmap_tolerance_profile")
+      .select("fodmap_group", { count: "exact", head: true })
+      .eq("user_id", user.id),
+  ]);
+  if (elimination.error || challenge.error || tolerance.error)
+    throw new Error("De fasebegeleiding kon niet worden geladen.");
+  let activeChallengeDays = 0;
+  if (challenge.data) {
+    const { count, error } = await supabase
+      .from("reintroduction_logs")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("challenge_id", challenge.data.id);
+    if (error) throw new Error("De fasebegeleiding kon niet worden geladen.");
+    activeChallengeDays = count ?? 0;
+  }
+  return {
+    hasEliminationHistory: (elimination.count ?? 0) > 0,
+    activeChallenge: challenge.data,
+    activeChallengeDays,
+    toleranceCount: tolerance.count ?? 0,
+  };
+}
+
 export async function getCuratedRecipes(): Promise<CuratedRecipe[]> {
   const { supabase, user } = await requireUser();
   const [{ data: recipes, error }, { data: likes }] = await Promise.all([

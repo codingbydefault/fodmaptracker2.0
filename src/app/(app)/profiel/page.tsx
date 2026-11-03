@@ -201,7 +201,7 @@ export default async function ProfilePage({
           </dl>
           <p className="footer-note">{text.hint}</p>
         </section>
-        <section className="card">
+        <section className="card" id="dieetbegeleiding">
           <div className="eyebrow">{text.guidance}</div>
           <h2 className="section-title">{text.elimination}</h2>
           {phaseDay ? (

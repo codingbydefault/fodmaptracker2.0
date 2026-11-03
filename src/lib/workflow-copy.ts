@@ -1,6 +1,47 @@
 import type { AppLanguage } from "@/lib/i18n";
 const nl = {
   phase: {
+    guidance: "Jouw huidige fase",
+    todayTip: "Tip voor vandaag",
+    startTitle: "Begin rustig met de eliminatiefase",
+    startBody:
+      "Start de tijdelijke eliminatiefase wanneer je er klaar voor bent. De app houdt je dagen bij en helpt je met passende recepten en registraties.",
+    startAction: "Eliminatiefase bekijken",
+    startTips: [
+      "Lees eerst de veiligheidsinformatie en betrek bij voorkeur een FODMAP-diëtist.",
+      "Houd maaltijden eenvoudig en noteer ook dagen zonder klachten.",
+      "De eliminatiefase is tijdelijk en wordt gevolgd door herintroductie.",
+    ],
+    eliminationTitle: "Je bent bezig met de eliminatiefase",
+    reintroActiveTitle: "Je herintroductietest is bezig",
+    reintroActiveBody:
+      "Registreer iedere testdag en verander tijdens deze test zo weinig mogelijk aan de rest van je voeding.",
+    reintroActiveAction: "Testdag registreren",
+    reintroActiveProgress: "testdagen geregistreerd",
+    reintroActiveTips: [
+      "Test één FODMAP-groep tegelijk tegen een rustige achtergrond.",
+      "Noteer de afgesproken portie en klachten zo precies mogelijk.",
+      "Stop bij ernstige of verontrustende klachten en vraag professioneel advies.",
+    ],
+    reintroReadyTitle: "Klaar voor de volgende stap: herintroductie",
+    reintroReadyBody:
+      "Herintroductie helpt ontdekken welke groepen en porties je persoonlijk verdraagt. Blijf niet langer beperken dan nodig.",
+    reintroReadyAction: "Herintroductie voorbereiden",
+    reintroReadyTips: [
+      "Kies samen met een geschikte bron of diëtist één testvoedingsmiddel.",
+      "Test één groep per keer en registreer drie duidelijke testdagen.",
+      "Plan tussen tests voldoende rust om de uitkomst goed te kunnen beoordelen.",
+    ],
+    maintenanceTitle: "Personalisatie en onderhoud",
+    maintenanceBody:
+      "Je tolerantiepaspoort groeit mee. Gebruik je resultaten om gevarieerd te eten en test alleen verder wanneer dat voor jou passend is.",
+    maintenanceAction: "Tolerantiepaspoort bekijken",
+    maintenanceProgress: "groepen onderzocht",
+    maintenanceTips: [
+      "Blijf voedingsmiddelen eten die je goed verdraagt voor voldoende variatie.",
+      "Een reactie kan portieafhankelijk zijn; één ervaring is geen definitieve conclusie.",
+      "Werk je paspoort bij wanneer een herintroductie een duidelijker resultaat geeft.",
+    ],
     discover: "Ontdek je persoonlijke tolerantie",
     discoverBody:
       "Plan driedaagse herintroducties en bouw je eigen tolerantiepaspoort op.",
@@ -75,6 +116,27 @@ const nl = {
 };
 const en = {
   phase: {
+    guidance: "Your current phase",
+    todayTip: "Tip for today",
+    startTitle: "Start the elimination phase calmly",
+    startBody: "Start the temporary elimination phase when you are ready. The app tracks your days and supports you with suitable recipes and entries.",
+    startAction: "View elimination phase",
+    startTips: ["Read the safety information first and preferably involve a FODMAP-trained dietitian.", "Keep meals simple and also record symptom-free days.", "The elimination phase is temporary and is followed by reintroduction."],
+    eliminationTitle: "You are in the elimination phase",
+    reintroActiveTitle: "Your reintroduction test is in progress",
+    reintroActiveBody: "Record every test day and change as little as possible in the rest of your diet during the test.",
+    reintroActiveAction: "Record test day",
+    reintroActiveProgress: "test days recorded",
+    reintroActiveTips: ["Test one FODMAP group at a time against a calm background diet.", "Record the agreed portion and symptoms as precisely as possible.", "Stop with severe or worrying symptoms and seek professional advice."],
+    reintroReadyTitle: "Ready for the next step: reintroduction",
+    reintroReadyBody: "Reintroduction helps reveal which groups and portions you personally tolerate. Do not restrict for longer than necessary.",
+    reintroReadyAction: "Prepare reintroduction",
+    reintroReadyTips: ["Choose one test food with a suitable source or dietitian.", "Test one group at a time and record three clear test days.", "Allow enough recovery time between tests to assess the result."],
+    maintenanceTitle: "Personalisation and maintenance",
+    maintenanceBody: "Your tolerance passport grows with you. Use your results to eat a varied diet and continue testing only when appropriate for you.",
+    maintenanceAction: "View tolerance passport",
+    maintenanceProgress: "groups investigated",
+    maintenanceTips: ["Keep eating foods you tolerate well to maintain variety.", "A response can depend on portion size; one experience is not a final conclusion.", "Update your passport when a reintroduction gives a clearer result."],
     discover: "Discover your personal tolerance",
     discoverBody:
       "Plan three-day reintroductions and build your personal tolerance passport.",
@@ -149,6 +211,27 @@ const en = {
 };
 const fr = {
   phase: {
+    guidance: "Votre phase actuelle",
+    todayTip: "Conseil du jour",
+    startTitle: "Commencez sereinement la phase d’élimination",
+    startBody: "Commencez la phase d’élimination temporaire lorsque vous êtes prêt·e. L’application suit les jours et vous aide avec des recettes et des notes adaptées.",
+    startAction: "Voir la phase d’élimination",
+    startTips: ["Lisez d’abord les informations de sécurité et faites-vous de préférence accompagner par un·e diététicien·ne FODMAP.", "Gardez les repas simples et notez aussi les jours sans symptômes.", "La phase d’élimination est temporaire et suivie d’une réintroduction."],
+    eliminationTitle: "Vous êtes en phase d’élimination",
+    reintroActiveTitle: "Votre test de réintroduction est en cours",
+    reintroActiveBody: "Notez chaque jour de test et changez le moins possible le reste de votre alimentation pendant le test.",
+    reintroActiveAction: "Noter le jour de test",
+    reintroActiveProgress: "jours de test enregistrés",
+    reintroActiveTips: ["Testez un seul groupe FODMAP à la fois sur une alimentation de fond stable.", "Notez aussi précisément que possible la portion convenue et les symptômes.", "Arrêtez en cas de symptômes graves ou inquiétants et demandez un avis professionnel."],
+    reintroReadyTitle: "Prêt·e pour l’étape suivante : la réintroduction",
+    reintroReadyBody: "La réintroduction aide à découvrir les groupes et portions que vous tolérez personnellement. Ne vous limitez pas plus longtemps que nécessaire.",
+    reintroReadyAction: "Préparer la réintroduction",
+    reintroReadyTips: ["Choisissez un seul aliment test avec une source adaptée ou un·e diététicien·ne.", "Testez un groupe à la fois et notez trois jours de test clairs.", "Prévoyez assez de repos entre les tests pour bien évaluer le résultat."],
+    maintenanceTitle: "Personnalisation et entretien",
+    maintenanceBody: "Votre passeport de tolérance évolue avec vous. Utilisez vos résultats pour varier votre alimentation et poursuivez les tests seulement si cela vous convient.",
+    maintenanceAction: "Voir le passeport de tolérance",
+    maintenanceProgress: "groupes étudiés",
+    maintenanceTips: ["Continuez à manger les aliments bien tolérés pour préserver la variété.", "Une réaction peut dépendre de la portion ; une seule expérience n’est pas une conclusion définitive.", "Mettez à jour votre passeport lorsqu’une réintroduction donne un résultat plus clair."],
     discover: "Découvrez votre tolérance personnelle",
     discoverBody:
       "Planifiez des réintroductions de trois jours et créez votre passeport de tolérance.",
@@ -223,6 +306,27 @@ const fr = {
 };
 const de = {
   phase: {
+    guidance: "Deine aktuelle Phase",
+    todayTip: "Tipp für heute",
+    startTitle: "Starte in Ruhe mit der Eliminationsphase",
+    startBody: "Beginne die vorübergehende Eliminationsphase, wenn du bereit bist. Die App zählt die Tage und unterstützt dich mit passenden Rezepten und Einträgen.",
+    startAction: "Eliminationsphase ansehen",
+    startTips: ["Lies zuerst die Sicherheitsinformationen und beziehe möglichst eine FODMAP-geschulte Ernährungsfachkraft ein.", "Halte Mahlzeiten einfach und notiere auch beschwerdefreie Tage.", "Die Eliminationsphase ist vorübergehend und wird von der Wiedereinführung gefolgt."],
+    eliminationTitle: "Du bist in der Eliminationsphase",
+    reintroActiveTitle: "Dein Wiedereinführungstest läuft",
+    reintroActiveBody: "Dokumentiere jeden Testtag und ändere während des Tests möglichst wenig an deiner übrigen Ernährung.",
+    reintroActiveAction: "Testtag dokumentieren",
+    reintroActiveProgress: "Testtage dokumentiert",
+    reintroActiveTips: ["Teste jeweils nur eine FODMAP-Gruppe vor einem ruhigen Ernährungshintergrund.", "Notiere die vereinbarte Portion und Beschwerden möglichst genau.", "Brich bei starken oder beunruhigenden Beschwerden ab und hole fachlichen Rat ein."],
+    reintroReadyTitle: "Bereit für den nächsten Schritt: Wiedereinführung",
+    reintroReadyBody: "Die Wiedereinführung zeigt, welche Gruppen und Portionen du persönlich verträgst. Schränke dich nicht länger als nötig ein.",
+    reintroReadyAction: "Wiedereinführung vorbereiten",
+    reintroReadyTips: ["Wähle mit einer geeigneten Quelle oder Fachkraft ein Testlebensmittel aus.", "Teste jeweils eine Gruppe und dokumentiere drei klare Testtage.", "Plane zwischen den Tests genug Ruhe ein, um das Ergebnis beurteilen zu können."],
+    maintenanceTitle: "Personalisierung und Erhaltung",
+    maintenanceBody: "Dein Verträglichkeitspass wächst mit. Nutze deine Ergebnisse für eine abwechslungsreiche Ernährung und teste nur weiter, wenn es für dich passt.",
+    maintenanceAction: "Verträglichkeitspass ansehen",
+    maintenanceProgress: "Gruppen untersucht",
+    maintenanceTips: ["Iss gut verträgliche Lebensmittel weiter, um Vielfalt zu erhalten.", "Eine Reaktion kann portionsabhängig sein; eine einzelne Erfahrung ist kein endgültiger Schluss.", "Aktualisiere deinen Pass, wenn eine Wiedereinführung ein klareres Ergebnis liefert."],
     discover: "Entdecke deine persönliche Verträglichkeit",
     discoverBody:
       "Plane dreitägige Wiedereinführungen und erstelle deinen persönlichen Verträglichkeitspass.",

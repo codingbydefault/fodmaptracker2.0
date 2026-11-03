@@ -6,6 +6,7 @@ import { SeverityStatCard } from "@/components/SeverityStatCard";
 import {
   getActiveDietPhase,
   getCuratedRecipes,
+  getDietJourneySummary,
   getFoodEntries,
   getProfile,
   getSymptomEntries,
@@ -27,12 +28,13 @@ export default async function Dashboard() {
   const mealLabels = localizedMealNames[language];
   const symptomLabels = localizedSymptomNames[language];
   const halloween = isHalloweenToday();
-  const [foods, symptoms, phase, profile, curatedRecipes] = await Promise.all([
+  const [foods, symptoms, phase, profile, curatedRecipes, journey] = await Promise.all([
     getFoodEntries(100),
     getSymptomEntries(1000),
     getActiveDietPhase(),
     getProfile(),
     halloween ? getCuratedRecipes() : Promise.resolve([]),
+    getDietJourneySummary(),
   ]);
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "Europe/Amsterdam",
@@ -111,6 +113,59 @@ export default async function Dashboard() {
     ],
   };
   const tip = eliminationDay ? phaseTips[language][eliminationDay % 4] : null;
+  const rotatingTip = Math.floor(new Date(`${today}T12:00:00Z`).getTime() / 86400000) % 3;
+  const phaseGuide = (() => {
+    if (phase?.phase_type === "elimination" && !phasePlanComplete) {
+      return {
+        title: phaseText.eliminationTitle,
+        body: `${phaseText.day} ${eliminationDay} ${phaseText.of} 28`,
+        tip: tip ?? phaseText.startTips[rotatingTip],
+        href: "/profiel",
+        action: phaseText.view,
+        progress: eliminationDay ? (eliminationDay / 28) * 100 : 0,
+      };
+    }
+    if (journey.activeChallenge || phase?.phase_type === "reintroduction") {
+      return {
+        title: phaseText.reintroActiveTitle,
+        body: journey.activeChallenge
+          ? `${journey.activeChallenge.test_food} · ${journey.activeChallengeDays}/3 ${phaseText.reintroActiveProgress}. ${phaseText.reintroActiveBody}`
+          : phaseText.reintroActiveBody,
+        tip: phaseText.reintroActiveTips[rotatingTip],
+        href: "/herintroductie",
+        action: phaseText.reintroActiveAction,
+        progress: (journey.activeChallengeDays / 3) * 100,
+      };
+    }
+    if (journey.toleranceCount > 0) {
+      return {
+        title: phaseText.maintenanceTitle,
+        body: `${journey.toleranceCount}/6 ${phaseText.maintenanceProgress}. ${phaseText.maintenanceBody}`,
+        tip: phaseText.maintenanceTips[rotatingTip],
+        href: "/herintroductie",
+        action: phaseText.maintenanceAction,
+        progress: (journey.toleranceCount / 6) * 100,
+      };
+    }
+    if (phasePlanComplete || journey.hasEliminationHistory) {
+      return {
+        title: phaseText.reintroReadyTitle,
+        body: phaseText.reintroReadyBody,
+        tip: phaseText.reintroReadyTips[rotatingTip],
+        href: "/herintroductie",
+        action: phaseText.reintroReadyAction,
+        progress: 100,
+      };
+    }
+    return {
+      title: phaseText.startTitle,
+      body: phaseText.startBody,
+      tip: phaseText.startTips[rotatingTip],
+      href: "/profiel#dieetbegeleiding",
+      action: phaseText.startAction,
+      progress: 0,
+    };
+  })();
   const nextActions = [
     todaysFoods.length === 0
       ? {
@@ -153,17 +208,23 @@ export default async function Dashboard() {
             {text.shopping}
           </Link>
         </div>
-        {eliminationDay && (
-          <div className="phase-banner">
-            <strong>
-              {phasePlanComplete
-                ? phaseText.complete
-                : `${phaseText.day} ${eliminationDay} ${phaseText.of} 28`}
-            </strong>
-            <span>{phasePlanComplete ? phaseText.completeBody : tip}</span>
-            <Link href="/profiel">{phaseText.view} →</Link>
+      </section>
+      <section className="phase-guide-card" aria-labelledby="phase-guide-title">
+        <div className="phase-guide-copy">
+          <div className="eyebrow">{phaseText.guidance}</div>
+          <h2 id="phase-guide-title">{phaseGuide.title}</h2>
+          <p>{phaseGuide.body}</p>
+          <div className="phase-guide-tip">
+            <span aria-hidden="true">🌿</span>
+            <span><strong>{phaseText.todayTip}</strong>{phaseGuide.tip}</span>
           </div>
-        )}
+        </div>
+        <div className="phase-guide-action">
+          <div className="phase-progress" aria-hidden="true">
+            <span style={{ width: `${Math.min(100, phaseGuide.progress)}%` }} />
+          </div>
+          <Link className="btn" href={phaseGuide.href}>{phaseGuide.action} →</Link>
+        </div>
       </section>
       <section className="today-card" aria-labelledby="today-title">
         <div className="today-intro">
@@ -184,13 +245,6 @@ export default async function Dashboard() {
           ))}
         </div>
       </section>
-      {!eliminationDay && (
-        <div className="phase-banner">
-          <strong>{phaseText.discover}</strong>
-          <span>{phaseText.discoverBody}</span>
-          <Link href="/herintroductie">{phaseText.open} →</Link>
-        </div>
-      )}
       {halloween && <HalloweenSpotlight recipes={curatedRecipes} />}
       <section className="stat-grid" style={{ marginTop: 17 }}>
         <div className="card stat">

@@ -23,6 +23,21 @@ type AdminStats = {
   recent_signups: RecentSignup[];
 };
 
+type MonitoringEvent = {
+  event_type: "client_error" | "route_error";
+  path: string;
+  error_code: string | null;
+  created_at: string;
+};
+
+type MonitoringStats = {
+  generated_at: string;
+  errors_last_24h: number;
+  errors_last_7d: number;
+  last_error_at: string | null;
+  recent_events: MonitoringEvent[];
+};
+
 const number = (value: number) => value.toLocaleString("nl-NL");
 const dateTime = (value: string | null) =>
   value
@@ -57,7 +72,12 @@ export default async function AdminPage() {
   const { data: isAdmin, error: adminCheckError } = await supabase.rpc("is_app_admin");
   if (adminCheckError || isAdmin !== true) redirect("/dashboard");
 
-  const { data, error } = await supabase.rpc("get_admin_dashboard_stats");
+  const monitoringStartedAt = performance.now();
+  const [{ data, error }, { data: monitoringData, error: monitoringError }] = await Promise.all([
+    supabase.rpc("get_admin_dashboard_stats"),
+    supabase.rpc("get_admin_monitoring_stats"),
+  ]);
+  const databaseResponseMs = Math.max(1, Math.round(performance.now() - monitoringStartedAt));
   if (error || !data) {
     return (
       <AppShell active="admin" email={user.email ?? "Beheerder"}>
@@ -75,6 +95,7 @@ export default async function AdminPage() {
   }
 
   const stats = data as AdminStats;
+  const monitoring = monitoringData as MonitoringStats | null;
   const profileMismatch = stats.auth_users_without_profile > 0;
 
   return (
@@ -155,14 +176,43 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="card" style={{ marginTop: 18 }}>
-        <h2 className="section-title">Monitoring: volgende stap</h2>
-        <p className="subtle" style={{ marginBottom: 8 }}>
-          Dit dashboard controleert de database en de belangrijkste aantallen. Het verzamelt nog geen frontend-fouten,
-          serverfouten of responstijden. Daarvoor moeten we later foutmonitoring en Vercel-runtimegegevens koppelen.
-        </p>
-        <p className="subtle" style={{ fontSize: 12, marginBottom: 0 }}>
-          Gezondheidsgegevens worden niet getoond in dit overzicht; alleen totalen en registratiedata.
+      <section style={{ marginTop: 18 }}>
+        <h2 className="section-title" style={{ marginBottom: 10 }}>Monitoring</h2>
+        {monitoringError || !monitoring ? (
+          <div className="notice notice-error">
+            Monitoring is nog niet verbonden. Voer Supabase-migratie 0027 uit om foutregistratie te activeren.
+          </div>
+        ) : (
+          <>
+            <div className="stat-grid">
+              <Metric label="Technische fouten · 24 uur" value={number(monitoring.errors_last_24h)} detail="Alleen technische metadata" />
+              <Metric label="Technische fouten · 7 dagen" value={number(monitoring.errors_last_7d)} detail="Frontend- en routefouten" />
+              <Metric label="Database-responstijd" value={`${databaseResponseMs} ms`} detail="Gemeten bij het openen van dit dashboard" />
+            </div>
+            <div className="card" style={{ marginTop: 12 }}>
+              <div className="entry">
+                <div>
+                  <div className="entry-title">Foutregistratie</div>
+                  <div className="subtle" style={{ fontSize: 12 }}>Laatste fout: {dateTime(monitoring.last_error_at)}</div>
+                </div>
+                <span className="pill">Actief</span>
+              </div>
+              {monitoring.recent_events.length === 0 ? (
+                <div className="empty">Er zijn nog geen technische fouten geregistreerd.</div>
+              ) : monitoring.recent_events.map((event, index) => (
+                <div className="entry" key={`${event.created_at}-${index}`}>
+                  <div>
+                    <div className="entry-title">{event.event_type === "route_error" ? "Paginafout" : "Appfout"} · {event.path}</div>
+                    <div className="subtle" style={{ fontSize: 12 }}>Code: {event.error_code || "onbekend"}</div>
+                  </div>
+                  <span style={{ fontSize: 12, textAlign: "right" }}>{dateTime(event.created_at)}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+        <p className="subtle" style={{ fontSize: 12, marginTop: 10, marginBottom: 0 }}>
+          Monitoring bewaart geen klachten, maaltijden, e-mailadressen of volledige foutteksten.
         </p>
       </section>
     </AppShell>

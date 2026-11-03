@@ -18,6 +18,8 @@ import {
   requireUser,
 } from "@/lib/data";
 import { menuMealNames } from "@/lib/types";
+import { getRequestLanguage } from "@/lib/request-language";
+import { appCopy } from "@/lib/app-copy";
 
 export const metadata = { title: "Weekmenu" };
 
@@ -31,10 +33,12 @@ export default async function WeekMenuPage({
     error?: string;
   }>;
 }) {
-  const [{ user, supabase }, params] = await Promise.all([
+  const [{ user, supabase }, params, language] = await Promise.all([
     requireUser(),
     searchParams,
+    getRequestLanguage(),
   ]);
+  const pageText=appCopy[language].pages;
   const { data: profile } = await supabase
     .from("profiles")
     .select("timezone")
@@ -65,12 +69,9 @@ export default async function WeekMenuPage({
   return (
     <AppShell active="weekmenu" email={user.email ?? "Account"}>
       <header style={{ marginBottom: 20 }}>
-        <div className="eyebrow">Planning</div>
-        <h1 className="page-title">Weekmenu</h1>
-        <p className="subtle">
-          Tik bij een dag op ‘Recept plannen’ en kies daarna een recept en
-          eetmoment.
-        </p>
+        <div className="eyebrow">{pageText.weekEyebrow}</div>
+        <h1 className="page-title">{pageText.weekTitle}</h1>
+        <p className="subtle">{pageText.weekIntro}</p>
       </header>
       {params.message && (
         <div className="notice">

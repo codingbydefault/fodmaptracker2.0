@@ -4,6 +4,8 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { RecipeCarousel } from "@/components/RecipeCarousel";
 import { getCuratedRecipes, getPublicRecipes, getRecipes, requireUser } from "@/lib/data";
 import { menuMealNames, type MenuMealType } from "@/lib/types";
+import { getRequestLanguage } from "@/lib/request-language";
+import { appCopy } from "@/lib/app-copy";
 
 export const metadata={title:"Recepten"};
 
@@ -11,7 +13,7 @@ type RecipeSearchParams={q?:string;fase?:string;categorie?:string;bron?:string;m
 const categories=Object.entries(menuMealNames) as [MenuMealType,string][];
 
 export default async function RecipesPage({searchParams}:{searchParams:Promise<RecipeSearchParams>}){
- const [{user},params]=await Promise.all([requireUser(),searchParams]);
+ const [{user},params,language]=await Promise.all([requireUser(),searchParams,getRequestLanguage()]);const pageText=appCopy[language].pages;
  const query=(params.q??"").slice(0,120);
  const normalizedQuery=query.toLocaleLowerCase("nl-NL");
  const eliminationOnly=params.fase==="eliminatie";
@@ -23,7 +25,7 @@ export default async function RecipesPage({searchParams}:{searchParams:Promise<R
  const hasFilters=Boolean(query||eliminationOnly||category||source);
 
  return <AppShell active="recepten" email={user.email??"Account"}>
-  <header style={{marginBottom:20}}><div className="eyebrow">Ontdekken en bewaren</div><h1 className="page-title">Recepten</h1><p className="subtle">Blader door alle low-FODMAP-recepten of verfijn op wat jij vandaag zoekt.</p></header>
+  <header style={{marginBottom:20}}><div className="eyebrow">{pageText.recipesEyebrow}</div><h1 className="page-title">{pageText.recipesTitle}</h1><p className="subtle">{pageText.recipesIntro}</p></header>
   {params.message&&<div className="notice">Het recept is verwijderd.</div>}{params.error&&<div className="notice notice-error">De actie is niet gelukt. Probeer het opnieuw.</div>}
 
   <section className="card recipe-filter-card">

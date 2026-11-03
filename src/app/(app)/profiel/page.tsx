@@ -50,6 +50,12 @@ export default async function ProfilePage({
           edit: "Edit details",
           language: "Preferred language",
           save: "Save changes",
+          emptyFavourites: "Tap ‘Save’ on a suggested recipe to find it here.",
+          favouritesLabel: "My three favourite recipes",
+          ownLabel: "My three newest recipes",
+          suggestedBody:
+            "Ideas with credited sources from several low-FODMAP resources. Check current portions with the original source.",
+          suggestedLabel: "Three recipes suggested for you",
         }
       : language === "fr"
         ? {
@@ -60,6 +66,13 @@ export default async function ProfilePage({
             edit: "Modifier les données",
             language: "Langue préférée",
             save: "Enregistrer",
+            emptyFavourites:
+              "Touchez « Enregistrer » sur une suggestion pour la retrouver ici.",
+            favouritesLabel: "Mes trois recettes favorites",
+            ownLabel: "Mes trois recettes les plus récentes",
+            suggestedBody:
+              "Des idées issues de plusieurs sources pauvres en FODMAP. Vérifiez les portions actuelles auprès de la source originale.",
+            suggestedLabel: "Trois recettes suggérées pour vous",
           }
         : language === "de"
           ? {
@@ -70,6 +83,13 @@ export default async function ProfilePage({
               edit: "Daten bearbeiten",
               language: "Bevorzugte Sprache",
               save: "Änderungen speichern",
+              emptyFavourites:
+                "Tippe bei einem Vorschlag auf „Speichern“, um ihn hier wiederzufinden.",
+              favouritesLabel: "Meine drei Lieblingsrezepte",
+              ownLabel: "Meine drei neuesten Rezepte",
+              suggestedBody:
+                "Ideen aus mehreren Low-FODMAP-Quellen mit Quellenangabe. Prüfe aktuelle Portionen bei der Originalquelle.",
+              suggestedLabel: "Drei für dich vorgeschlagene Rezepte",
             }
           : {
               ownRecipe: "Eigen recept",
@@ -79,6 +99,13 @@ export default async function ProfilePage({
               edit: "Gegevens aanpassen",
               language: "Gewenste taal",
               save: "Wijzigingen opslaan",
+              emptyFavourites:
+                "Tik bij een voorstel op ‘Bewaren’ om het hier terug te vinden.",
+              favouritesLabel: "Mijn drie favoriete recepten",
+              ownLabel: "Mijn drie nieuwste recepten",
+              suggestedBody:
+                "Bronvermelde inspiratie uit meerdere low-FODMAP-bronnen. Controleer de actuele porties bij de oorspronkelijke bron.",
+              suggestedLabel: "Drie recepten voorgesteld voor jou",
             };
   const today = new Date().toLocaleDateString("en-CA", {
     timeZone: "Europe/Amsterdam",
@@ -264,7 +291,7 @@ export default async function ProfilePage({
           <RecipeCarousel
             kind="own"
             recipes={ownRecipes.slice(0, 3)}
-            label="Mijn drie nieuwste recepten"
+            label={extra.ownLabel}
             language={language}
           />
         )}
@@ -272,14 +299,12 @@ export default async function ProfilePage({
           {extra.favourites}
         </h3>
         {liked.length === 0 ? (
-          <div className="card empty">
-            Tik bij een voorstel op ‘Bewaren’ om het hier terug te vinden.
-          </div>
+          <div className="card empty">{extra.emptyFavourites}</div>
         ) : (
           <RecipeCarousel
             kind="curated"
             recipes={liked.slice(0, 3)}
-            label="Mijn drie favoriete recepten"
+            label={extra.favouritesLabel}
             showLikeActions
             language={language}
           />
@@ -287,14 +312,11 @@ export default async function ProfilePage({
         <h3 className="section-title" style={{ marginTop: 24 }}>
           {extra.suggested}
         </h3>
-        <p className="subtle">
-          Bronvermelde inspiratie uit meerdere low-FODMAP-bronnen. Controleer de
-          actuele porties bij de oorspronkelijke bron.
-        </p>
+        <p className="subtle">{extra.suggestedBody}</p>
         <RecipeCarousel
           kind="curated"
           recipes={suggestions.slice(0, 3)}
-          label="Drie recepten voorgesteld voor jou"
+          label={extra.suggestedLabel}
           showLikeActions
           language={language}
         />

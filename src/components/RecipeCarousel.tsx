@@ -5,9 +5,247 @@ import { RecipePhoto } from "@/components/RecipePhoto";
 import { SubmitButton } from "@/components/SubmitButton";
 import { useAutoTranslatedRecipe } from "@/components/AutoTranslatedRecipe";
 import { toggleRecipeLike } from "@/lib/profile-actions";
-import { menuMealNames,type CuratedRecipe,type Recipe } from "@/lib/types";
-import type { AppLanguage } from "@/lib/i18n";
-type Props=({kind:"curated";recipes:CuratedRecipe[];label:string;showLikeActions?:boolean}|{kind:"own"|"community";recipes:Recipe[];label:string})&{language?:AppLanguage};
-const labels={nl:{previous:"Vorige recepten",next:"Volgende recepten",servings:"porties",phase:"Eliminatiefase",view:"Bekijk recept",saved:"Bewaard",save:"Bewaren",own:"Eigen recept",shared:"Gedeeld door",user:"een gebruiker",person:"persoon",people:"personen",public:"Openbaar",private:"Privé",original:"Oorspronkelijke taal"},en:{previous:"Previous recipes",next:"Next recipes",servings:"servings",phase:"Elimination phase",view:"View recipe",saved:"Saved",save:"Save",own:"Own recipe",shared:"Shared by",user:"a user",person:"person",people:"people",public:"Public",private:"Private",original:"Original language"},fr:{previous:"Recettes précédentes",next:"Recettes suivantes",servings:"portions",phase:"Phase d’élimination",view:"Voir la recette",saved:"Enregistrée",save:"Enregistrer",own:"Recette personnelle",shared:"Partagée par",user:"un utilisateur",person:"personne",people:"personnes",public:"Publique",private:"Privée",original:"Langue d’origine"},de:{previous:"Vorherige Rezepte",next:"Nächste Rezepte",servings:"Portionen",phase:"Eliminationsphase",view:"Rezept ansehen",saved:"Gespeichert",save:"Speichern",own:"Eigenes Rezept",shared:"Geteilt von",user:"einem Nutzer",person:"Person",people:"Personen",public:"Öffentlich",private:"Privat",original:"Originalsprache"}};
-export function RecipeCarousel(props:Props){const track=useRef<HTMLDivElement>(null);const language=props.language??"nl";const text=labels[language];const move=(d:number)=>track.current?.scrollBy({left:d*Math.min(track.current.clientWidth*.85,900),behavior:"smooth"});return <div className="carousel-shell" aria-label={props.label}><div className="carousel-controls"><button type="button" className="carousel-button" onClick={()=>move(-1)} aria-label={text.previous}>←</button><button type="button" className="carousel-button" onClick={()=>move(1)} aria-label={text.next}>→</button></div><div className="recipe-carousel" ref={track} tabIndex={0}>{props.kind==="curated"?props.recipes.map(recipe=><CuratedCard key={recipe.id} recipe={recipe} language={language} showLikeActions={props.showLikeActions}/>):props.recipes.map(recipe=><article className="card recipe-card carousel-card" key={recipe.id}><RecipePhoto className="recipe-card-image" title={recipe.title} fallback="/recipes/avondeten.webp" alt={recipe.title}/><div><div className="eyebrow">{props.kind==="community"?`${text.shared} ${recipe.author_username?`@${recipe.author_username}`:text.user}`:text.own} · {recipe.servings} {recipe.servings===1?text.person:text.people}{recipe.preparation_minutes?` · ${recipe.preparation_minutes} min`:""}</div>{language!=="nl"&&<span className="pill">{text.original}</span>}{props.kind==="own"&&<div className="recipe-badges"><span className="pill category-pill">{recipe.is_public?text.public:text.private}</span></div>}<h3 className="section-title" style={{fontSize:20,margin:"8px 0 5px"}}>{recipe.title}</h3>{recipe.description&&<p className="subtle" style={{fontSize:13,margin:0}}>{recipe.description}</p>}</div><Link className="btn btn-secondary" href={`/recepten/${recipe.id}`}>{text.view} →</Link></article>)}</div></div>}
-function CuratedCard({recipe,language,showLikeActions}:{recipe:CuratedRecipe;language:AppLanguage;showLikeActions?:boolean}){const [title,summary]=useAutoTranslatedRecipe(language,`${recipe.id}:card`,[recipe.title,recipe.summary]);const text=labels[language];return <article className="card recipe-card carousel-card"><RecipePhoto className="recipe-card-image" title={recipe.title} fallback={`/recipes/${recipe.category}.webp`} alt={title}/><div><div className="eyebrow">{recipe.source_name} · {recipe.servings} {text.servings}{recipe.preparation_minutes?` · ${recipe.preparation_minutes} min`:""}</div><div className="recipe-badges">{recipe.suitable_for_elimination&&<span className="pill phase-pill">{text.phase}</span>}<span className="pill category-pill">{menuMealNames[recipe.category]}</span></div><h3 className="section-title" style={{fontSize:20,margin:"8px 0 5px"}}>{title}</h3><p className="subtle" style={{fontSize:13,margin:0}}>{summary}</p></div><div className="recipe-actions"><Link className="btn btn-secondary" href={`/recepten/uitgelicht/${recipe.id}`}>{text.view} →</Link>{showLikeActions&&<form action={toggleRecipeLike}><input type="hidden" name="recipe_id" value={recipe.id}/><input type="hidden" name="liked" value={String(recipe.liked)}/><SubmitButton className="btn btn-secondary">{recipe.liked?`♥ ${text.saved}`:`♡ ${text.save}`}</SubmitButton></form>}</div></article>}
+import { type CuratedRecipe, type Recipe } from "@/lib/types";
+import { localizedMenuMealNames, type AppLanguage } from "@/lib/i18n";
+type Props = (
+  | {
+      kind: "curated";
+      recipes: CuratedRecipe[];
+      label: string;
+      showLikeActions?: boolean;
+    }
+  | { kind: "own" | "community"; recipes: Recipe[]; label: string }
+) & { language?: AppLanguage };
+const labels = {
+  nl: {
+    previous: "Vorige recepten",
+    next: "Volgende recepten",
+    servings: "porties",
+    phase: "Eliminatiefase",
+    view: "Bekijk recept",
+    saved: "Bewaard",
+    save: "Bewaren",
+    own: "Eigen recept",
+    shared: "Gedeeld door",
+    user: "een gebruiker",
+    person: "persoon",
+    people: "personen",
+    public: "Openbaar",
+    private: "Privé",
+    original: "Oorspronkelijke taal",
+  },
+  en: {
+    previous: "Previous recipes",
+    next: "Next recipes",
+    servings: "servings",
+    phase: "Elimination phase",
+    view: "View recipe",
+    saved: "Saved",
+    save: "Save",
+    own: "Own recipe",
+    shared: "Shared by",
+    user: "a user",
+    person: "person",
+    people: "people",
+    public: "Public",
+    private: "Private",
+    original: "Original language",
+  },
+  fr: {
+    previous: "Recettes précédentes",
+    next: "Recettes suivantes",
+    servings: "portions",
+    phase: "Phase d’élimination",
+    view: "Voir la recette",
+    saved: "Enregistrée",
+    save: "Enregistrer",
+    own: "Recette personnelle",
+    shared: "Partagée par",
+    user: "un utilisateur",
+    person: "personne",
+    people: "personnes",
+    public: "Publique",
+    private: "Privée",
+    original: "Langue d’origine",
+  },
+  de: {
+    previous: "Vorherige Rezepte",
+    next: "Nächste Rezepte",
+    servings: "Portionen",
+    phase: "Eliminationsphase",
+    view: "Rezept ansehen",
+    saved: "Gespeichert",
+    save: "Speichern",
+    own: "Eigenes Rezept",
+    shared: "Geteilt von",
+    user: "einem Nutzer",
+    person: "Person",
+    people: "Personen",
+    public: "Öffentlich",
+    private: "Privat",
+    original: "Originalsprache",
+  },
+};
+export function RecipeCarousel(props: Props) {
+  const track = useRef<HTMLDivElement>(null);
+  const language = props.language ?? "nl";
+  const text = labels[language];
+  const move = (d: number) =>
+    track.current?.scrollBy({
+      left: d * Math.min(track.current.clientWidth * 0.85, 900),
+      behavior: "smooth",
+    });
+  return (
+    <div className="carousel-shell" aria-label={props.label}>
+      <div className="carousel-controls">
+        <button
+          type="button"
+          className="carousel-button"
+          onClick={() => move(-1)}
+          aria-label={text.previous}
+        >
+          ←
+        </button>
+        <button
+          type="button"
+          className="carousel-button"
+          onClick={() => move(1)}
+          aria-label={text.next}
+        >
+          →
+        </button>
+      </div>
+      <div className="recipe-carousel" ref={track} tabIndex={0}>
+        {props.kind === "curated"
+          ? props.recipes.map((recipe) => (
+              <CuratedCard
+                key={recipe.id}
+                recipe={recipe}
+                language={language}
+                showLikeActions={props.showLikeActions}
+              />
+            ))
+          : props.recipes.map((recipe) => (
+              <article
+                className="card recipe-card carousel-card"
+                key={recipe.id}
+              >
+                <RecipePhoto
+                  className="recipe-card-image"
+                  title={recipe.title}
+                  fallback="/recipes/avondeten.webp"
+                  alt={recipe.title}
+                />
+                <div>
+                  <div className="eyebrow">
+                    {props.kind === "community"
+                      ? `${text.shared} ${recipe.author_username ? `@${recipe.author_username}` : text.user}`
+                      : text.own}{" "}
+                    · {recipe.servings}{" "}
+                    {recipe.servings === 1 ? text.person : text.people}
+                    {recipe.preparation_minutes
+                      ? ` · ${recipe.preparation_minutes} min`
+                      : ""}
+                  </div>
+                  {language !== "nl" && (
+                    <span className="pill">{text.original}</span>
+                  )}
+                  {props.kind === "own" && (
+                    <div className="recipe-badges">
+                      <span className="pill category-pill">
+                        {recipe.is_public ? text.public : text.private}
+                      </span>
+                    </div>
+                  )}
+                  <h3
+                    className="section-title"
+                    style={{ fontSize: 20, margin: "8px 0 5px" }}
+                  >
+                    {recipe.title}
+                  </h3>
+                  {recipe.description && (
+                    <p className="subtle" style={{ fontSize: 13, margin: 0 }}>
+                      {recipe.description}
+                    </p>
+                  )}
+                </div>
+                <Link
+                  className="btn btn-secondary"
+                  href={`/recepten/${recipe.id}`}
+                >
+                  {text.view} →
+                </Link>
+              </article>
+            ))}
+      </div>
+    </div>
+  );
+}
+function CuratedCard({
+  recipe,
+  language,
+  showLikeActions,
+}: {
+  recipe: CuratedRecipe;
+  language: AppLanguage;
+  showLikeActions?: boolean;
+}) {
+  const [title, summary] = useAutoTranslatedRecipe(
+    language,
+    `${recipe.id}:card`,
+    [recipe.title, recipe.summary],
+  );
+  const text = labels[language];
+  return (
+    <article className="card recipe-card carousel-card">
+      <RecipePhoto
+        className="recipe-card-image"
+        title={recipe.title}
+        fallback={`/recipes/${recipe.category}.webp`}
+        alt={title}
+      />
+      <div>
+        <div className="eyebrow">
+          {recipe.source_name} · {recipe.servings} {text.servings}
+          {recipe.preparation_minutes
+            ? ` · ${recipe.preparation_minutes} min`
+            : ""}
+        </div>
+        <div className="recipe-badges">
+          {recipe.suitable_for_elimination && (
+            <span className="pill phase-pill">{text.phase}</span>
+          )}
+          <span className="pill category-pill">
+            {localizedMenuMealNames[language][recipe.category]}
+          </span>
+        </div>
+        <h3
+          className="section-title"
+          style={{ fontSize: 20, margin: "8px 0 5px" }}
+        >
+          {title}
+        </h3>
+        <p className="subtle" style={{ fontSize: 13, margin: 0 }}>
+          {summary}
+        </p>
+      </div>
+      <div className="recipe-actions">
+        <Link
+          className="btn btn-secondary"
+          href={`/recepten/uitgelicht/${recipe.id}`}
+        >
+          {text.view} →
+        </Link>
+        {showLikeActions && (
+          <form action={toggleRecipeLike}>
+            <input type="hidden" name="recipe_id" value={recipe.id} />
+            <input type="hidden" name="liked" value={String(recipe.liked)} />
+            <SubmitButton className="btn btn-secondary">
+              {recipe.liked ? `♥ ${text.saved}` : `♡ ${text.save}`}
+            </SubmitButton>
+          </form>
+        )}
+      </div>
+    </article>
+  );
+}

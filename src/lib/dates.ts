@@ -33,10 +33,20 @@ export function mondayOfWeek(isoDate: string): string {
 }
 
 export function weekDates(mondayIso: string): string[] {
-  return Array.from({ length: 7 }, (_, index) => addCalendarDays(mondayIso, index));
+  return Array.from({ length: 7 }, (_, index) =>
+    addCalendarDays(mondayIso, index),
+  );
 }
 
-export function formatCalendarDate(isoDate: string, timeZone: string, options: Intl.DateTimeFormatOptions): string {
+export function formatCalendarDate(
+  isoDate: string,
+  timeZone: string,
+  options: Intl.DateTimeFormatOptions,
+  locale = "nl-NL",
+): string {
   const [year, month, day] = isoDate.split("-").map(Number);
-  return new Intl.DateTimeFormat("nl-NL", { ...options, timeZone: safeTimeZone(timeZone) }).format(new Date(Date.UTC(year, month - 1, day, 12)));
+  return new Intl.DateTimeFormat(locale, {
+    ...options,
+    timeZone: safeTimeZone(timeZone),
+  }).format(new Date(Date.UTC(year, month - 1, day, 12)));
 }

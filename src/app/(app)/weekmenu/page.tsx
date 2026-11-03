@@ -17,9 +17,11 @@ import {
   getWeeklyMenu,
   requireUser,
 } from "@/lib/data";
-import { menuMealNames } from "@/lib/types";
+import { localizedMenuMealNames } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { appCopy } from "@/lib/app-copy";
+import { workflowCopy } from "@/lib/workflow-copy";
+import { languageInfo } from "@/lib/i18n";
 
 export const metadata = { title: "Weekmenu" };
 
@@ -38,7 +40,9 @@ export default async function WeekMenuPage({
     searchParams,
     getRequestLanguage(),
   ]);
-  const pageText=appCopy[language].pages;
+  const pageText = appCopy[language].pages;
+  const text = workflowCopy[language].week;
+  const mealLabels = localizedMenuMealNames[language];
   const { data: profile } = await supabase
     .from("profiles")
     .select("timezone")
@@ -65,7 +69,7 @@ export default async function WeekMenuPage({
   const previous = addCalendarDays(monday, -7);
   const next = addCalendarDays(monday, 7);
   const dayLabel = (iso: string, options: Intl.DateTimeFormatOptions) =>
-    formatCalendarDate(iso, timeZone, options);
+    formatCalendarDate(iso, timeZone, options, languageInfo[language].locale);
   return (
     <AppShell active="weekmenu" email={user.email ?? "Account"}>
       <header style={{ marginBottom: 20 }}>
@@ -75,19 +79,13 @@ export default async function WeekMenuPage({
       </header>
       {params.message && (
         <div className="notice">
-          {params.message === "gepland"
-            ? "Recept toegevoegd aan het weekmenu."
-            : "Gerecht uit het weekmenu verwijderd."}
+          {params.message === "gepland" ? text.planned : text.removed}
         </div>
       )}
-      {params.error && (
-        <div className="notice notice-error">
-          De wijziging kon niet worden opgeslagen.
-        </div>
-      )}
+      {params.error && <div className="notice notice-error">{text.failed}</div>}
       <div className="week-navigation">
         <Link className="btn btn-secondary" href={`/weekmenu?week=${previous}`}>
-          ← Vorige
+          ← {text.previous}
         </Link>
         <strong>
           {dayLabel(monday, { day: "numeric", month: "short" })} –{" "}
@@ -98,12 +96,12 @@ export default async function WeekMenuPage({
           })}
         </strong>
         <Link className="btn btn-secondary" href={`/weekmenu?week=${next}`}>
-          Volgende →
+          {text.next} →
         </Link>
       </div>
       {selectedDay && (
         <section className="card week-planner">
-          <div className="eyebrow">Recept inplannen</div>
+          <div className="eyebrow">{text.plan}</div>
           <h2 className="section-title">
             {dayLabel(selectedDay, {
               weekday: "long",
@@ -115,7 +113,7 @@ export default async function WeekMenuPage({
             <input type="hidden" name="planned_for" value={selectedDay} />
             <div className="week-planner-fields">
               <div className="field">
-                <label htmlFor="recipe_selection">Recept</label>
+                <label htmlFor="recipe_selection">{text.recipe}</label>
                 <select
                   id="recipe_selection"
                   name="recipe_selection"
@@ -123,10 +121,10 @@ export default async function WeekMenuPage({
                   defaultValue=""
                 >
                   <option value="" disabled>
-                    Kies een recept…
+                    {text.choose}
                   </option>
                   {ownRecipes.length > 0 && (
-                    <optgroup label="Mijn recepten">
+                    <optgroup label={text.mine}>
                       {ownRecipes.map((recipe) => (
                         <option key={recipe.id} value={`user:${recipe.id}`}>
                           {recipe.title}
@@ -135,7 +133,7 @@ export default async function WeekMenuPage({
                     </optgroup>
                   )}
                   {communityRecipes.length > 0 && (
-                    <optgroup label="Community">
+                    <optgroup label={text.community}>
                       {communityRecipes.map((recipe) => (
                         <option key={recipe.id} value={`user:${recipe.id}`}>
                           {recipe.title}
@@ -143,7 +141,7 @@ export default async function WeekMenuPage({
                       ))}
                     </optgroup>
                   )}
-                  <optgroup label="Fodmap-Tracker recepten">
+                  <optgroup label={text.tracker}>
                     {curatedRecipes.map((recipe) => (
                       <option key={recipe.id} value={`curated:${recipe.id}`}>
                         {recipe.title}
@@ -153,13 +151,13 @@ export default async function WeekMenuPage({
                 </select>
               </div>
               <div className="field">
-                <label htmlFor="meal_type">Eetmoment</label>
+                <label htmlFor="meal_type">{text.meal}</label>
                 <select
                   id="meal_type"
                   name="meal_type"
                   defaultValue="avondeten"
                 >
-                  {Object.entries(menuMealNames).map(([key, label]) => (
+                  {Object.entries(mealLabels).map(([key, label]) => (
                     <option key={key} value={key}>
                       {label}
                     </option>
@@ -167,15 +165,22 @@ export default async function WeekMenuPage({
                 </select>
               </div>
               <div className="field">
-                <label htmlFor="planned_servings">Personen</label>
-                <input id="planned_servings" name="planned_servings" type="number" min={1} max={24} placeholder="Receptstandaard" />
+                <label htmlFor="planned_servings">{text.people}</label>
+                <input
+                  id="planned_servings"
+                  name="planned_servings"
+                  type="number"
+                  min={1}
+                  max={24}
+                  placeholder={text.default}
+                />
               </div>
-              <SubmitButton className="btn">Toevoegen →</SubmitButton>
+              <SubmitButton className="btn">{text.add} →</SubmitButton>
               <Link
                 className="btn btn-secondary"
                 href={`/weekmenu?week=${monday}`}
               >
-                Annuleren
+                {text.cancel}
               </Link>
             </div>
           </form>
@@ -199,11 +204,11 @@ export default async function WeekMenuPage({
                 className="week-add-button"
                 href={`/weekmenu?week=${monday}&day=${date}`}
               >
-                + Recept plannen
+                + {text.planRecipe}
               </Link>
               {planned.length === 0 ? (
                 <p className="subtle" style={{ fontSize: 12 }}>
-                  Nog niets gepland.
+                  {text.empty}
                 </p>
               ) : (
                 planned.map((entry) => {
@@ -214,7 +219,7 @@ export default async function WeekMenuPage({
                   return (
                     <div className="week-entry" key={entry.id}>
                       <div className="eyebrow" style={{ fontSize: 9 }}>
-                        {menuMealNames[entry.meal_type]}
+                        {mealLabels[entry.meal_type]}
                       </div>
                       <Link
                         href={href}
@@ -227,7 +232,10 @@ export default async function WeekMenuPage({
                       >
                         {recipe?.title ?? "Recept"}
                       </Link>
-                      <small className="subtle">{entry.planned_servings ?? recipe?.servings ?? 1} personen</small>
+                      <small className="subtle">
+                        {entry.planned_servings ?? recipe?.servings ?? 1}{" "}
+                        personen
+                      </small>
                       <form
                         action={deleteWeeklyMenuEntry}
                         style={{ marginTop: 7 }}
@@ -235,9 +243,9 @@ export default async function WeekMenuPage({
                         <input type="hidden" name="id" value={entry.id} />
                         <SubmitButton
                           className="week-delete-button"
-                          confirmMessage="Dit gerecht uit het weekmenu verwijderen?"
+                          confirmMessage={text.removeConfirm}
                         >
-                          Verwijder
+                          {text.remove}
                         </SubmitButton>
                       </form>
                     </div>
@@ -249,11 +257,9 @@ export default async function WeekMenuPage({
         })}
       </section>
       <div className="quick-links">
-        <Link href={`/boodschappen?week=${monday}`}>
-          Boodschappenlijst maken →
-        </Link>
-        <Link href="/recepten">Alle recepten bekijken →</Link>
-        <Link href="/voedingswijzer">Voedingswijzer →</Link>
+        <Link href={`/boodschappen?week=${monday}`}>{text.shopping} →</Link>
+        <Link href="/recepten">{text.all} →</Link>
+        <Link href="/voedingswijzer">{text.guide} →</Link>
       </div>
     </AppShell>
   );

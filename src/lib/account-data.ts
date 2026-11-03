@@ -12,6 +12,9 @@ export type AccountExport = {
   recipes: AccountRow[];
   weekly_menu_entries: AccountRow[];
   diet_phases: AccountRow[];
+  reintroduction_challenges: AccountRow[];
+  reintroduction_logs: AccountRow[];
+  fodmap_tolerance_profile: AccountRow[];
   recipe_likes: AccountRow[];
   product_catalog_contributions: AccountRow[];
   product_scan_evidence: AccountRow[];
@@ -44,6 +47,9 @@ const selects = {
   recipes: "id,user_id,title,description,servings,preparation_minutes,ingredients,instructions,is_public,created_at,updated_at",
   weekly_menu_entries: "id,user_id,recipe_id,curated_recipe_id,planned_for,meal_type,planned_servings,created_at",
   diet_phases: "id,user_id,phase_type,status,started_at,planned_end_at,ended_at,created_at",
+  reintroduction_challenges: "id,user_id,fodmap_group,test_food,status,started_on,completed_on,result,created_at",
+  reintroduction_logs: "id,challenge_id,user_id,challenge_day,portion_note,symptom_severity,symptom_note,tested_at,created_at",
+  fodmap_tolerance_profile: "user_id,fodmap_group,result,test_food,max_severity,tested_on,updated_at",
   recipe_likes: "user_id,curated_recipe_id,created_at",
   product_catalog: "id,barcode,country_code,ingredients_text,source,created_by,created_at,updated_at",
   product_scan_evidence: "id,product_id,user_id,photo_path,created_at",
@@ -94,13 +100,16 @@ export async function removeOwnStorage(supabase: AccountDataClient, userId: stri
 }
 
 export async function loadOwnAccountData(supabase: AccountDataClient, user: { id: string; email?: string | null }, exportedAt = new Date().toISOString()): Promise<AccountExport> {
-  const [profileRows, foodEntries, symptomEntries, recipes, weeklyMenu, dietPhases, likes, catalogContributions, scanEvidence, photos] = await Promise.all([
+  const [profileRows, foodEntries, symptomEntries, recipes, weeklyMenu, dietPhases, challenges, challengeLogs, toleranceProfile, likes, catalogContributions, scanEvidence, photos] = await Promise.all([
     ownedTable(supabase, "profiles", user.id, "id"),
     ownedTable(supabase, "food_entries", user.id, "user_id"),
     ownedTable(supabase, "symptom_entries", user.id, "user_id"),
     ownedTable(supabase, "recipes", user.id, "user_id"),
     ownedTable(supabase, "weekly_menu_entries", user.id, "user_id"),
     ownedTable(supabase, "diet_phases", user.id, "user_id"),
+    ownedTable(supabase, "reintroduction_challenges", user.id, "user_id"),
+    ownedTable(supabase, "reintroduction_logs", user.id, "user_id"),
+    ownedTable(supabase, "fodmap_tolerance_profile", user.id, "user_id"),
     ownedTable(supabase, "recipe_likes", user.id, "user_id"),
     ownedTable(supabase, "product_catalog", user.id, "created_by"),
     ownedTable(supabase, "product_scan_evidence", user.id, "user_id"),
@@ -117,6 +126,9 @@ export async function loadOwnAccountData(supabase: AccountDataClient, user: { id
     recipes,
     weekly_menu_entries: weeklyMenu,
     diet_phases: dietPhases,
+    reintroduction_challenges: challenges,
+    reintroduction_logs: challengeLogs,
+    fodmap_tolerance_profile: toleranceProfile,
     recipe_likes: likes,
     product_catalog_contributions: catalogContributions,
     product_scan_evidence: scanEvidence,

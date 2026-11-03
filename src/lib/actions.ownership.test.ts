@@ -13,6 +13,7 @@ vi.mock("@/lib/data", () => ({ requireUser: vi.fn() }));
 import { requireUser } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { addFoodEntry, addSymptomEntry, addWeeklyMenuEntry, deleteFoodEntry, deleteRecipe, deleteWeeklyMenuEntry, updateFoodEntry, updatePassword, updateRecipe, updateSymptomEntry } from "@/lib/actions";
+import { recordReintroductionDay } from "@/lib/reintroduction-actions";
 
 const userId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const otherUserId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -144,6 +145,28 @@ describe("ownership checks in server actions", () => {
     await redirectsTo(() => addSymptomEntry(symptomForm(rowId)), "/klachten?message=toegevoegd");
     const insert = supabase.log.find(entry => entry.table === "symptom_entries" && entry.method === "insert");
     expect(insert?.args[0]).toMatchObject({ user_id: userId, food_entry_id: rowId });
+  });
+
+  it("records a reintroduction day only for an active challenge owned by the signed-in user", async () => {
+    const form = new FormData();
+    form.set("challenge_id", rowId);
+    form.set("challenge_day", "1");
+    form.set("portion_note", "Afgesproken startportie");
+    form.set("symptom_severity", "2");
+    form.set("symptom_note", "Lichte buikdruk");
+    await redirectsTo(() => recordReintroductionDay(form), "/herintroductie?message=dag-opgeslagen");
+    expect(userEqs(supabase.log, "reintroduction_challenges")).toEqual([userId]);
+    const upsert = supabase.log.find(entry => entry.table === "reintroduction_logs" && entry.method === "upsert");
+    expect(upsert?.args[0]).toMatchObject({ user_id: userId, challenge_id: rowId, challenge_day: 1 });
+  });
+
+  it("does not record a day for a challenge the signed-in user cannot access", async () => {
+    supabase = createSupabase(table => table === "reintroduction_challenges" ? { data: null, error: null } : { data: {}, error: null });
+    vi.mocked(requireUser).mockResolvedValue({ supabase, user: { id: userId } } as never);
+    const form = new FormData();
+    form.set("challenge_id", rowId); form.set("challenge_day", "1"); form.set("portion_note", "Startportie"); form.set("symptom_severity", "2"); form.set("symptom_note", "");
+    await redirectsTo(() => recordReintroductionDay(form), "/herintroductie?error=onbekend");
+    expect(supabase.log.some(entry => entry.table === "reintroduction_logs")).toBe(false);
   });
 
   it("rejects an unowned meal when editing a symptom", async () => {

@@ -1,6 +1,6 @@
 import type { AppLanguage } from "@/lib/i18n";
 
-export const PRIVACY_NOTICE_VERSION = "2026-11-01";
+export const PRIVACY_NOTICE_VERSION = "2026-11-03";
 
 export const PRIVACY_CONTACT_EMAIL = "codedbydefault@gmail.com";
 
@@ -53,7 +53,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
         paragraphs: [
           "Account: e-mailadres en een wachtwoord. Het wachtwoord wordt door Supabase Auth opgeslagen als een hash. Wij kunnen het wachtwoord niet teruglezen.",
           "Profiel: naam, gebruikersnaam, profielfoto, voorkeurstaal, tijdzone, het tijdstip van je toestemming voor gezondheidsgegevens en de versie van deze verklaring die je hebt aanvaard.",
-          "Gezondheidsgegevens: maaltijden (naam, eetmoment, hoeveelheid, notities, tijdstip en een optionele foto), klachten (soort, eigen omschrijving, ernst van 0 tot 10, notities, tijdstip en een optionele koppeling aan een maaltijd) en de dieetfase die je zelf start.",
+          "Gezondheidsgegevens: maaltijden (naam, eetmoment, hoeveelheid, notities, tijdstip en een optionele foto), klachten (soort, eigen omschrijving, ernst van 0 tot 10, notities, tijdstip en een optionele koppeling aan een maaltijd), de dieetfase die je zelf start, herintroductietesten en je persoonlijke tolerantie-uitkomsten.",
           "Recepten en weekmenu: recepten die je zelf invoert, of je ze privé houdt of deelt met andere ingelogde gebruikers, favorieten, en de planning per dag en eetmoment.",
           "Etiketcontrole: als je uitdrukkelijk kiest voor ‘Product in de app bewaren’, delen we de barcode, het land van aankoop en de intern herkende ingrediënten in de productencatalogus zodat andere gebruikers het product niet opnieuw hoeven te fotograferen. De etiketfoto zelf blijft privé bij jouw account.",
           "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Vercel Analytics en Speed Insights kunnen anonieme gebruiks- en prestatiemetingen van pagina’s ontvangen. Die metingen bevatten niet de inhoud van je dagboek.",
@@ -91,7 +91,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
         heading: "Jouw rechten",
         paragraphs: [
           "Je kunt je gegevens inzien en downloaden via Profiel: een JSON-bestand met je accountgegevens, en CSV-bestanden voor maaltijden en klachten.",
-          "Je kunt maaltijden, klachten, recepten, het weekmenu en je profiel in de app zelf corrigeren of wissen.",
+          "Je kunt maaltijden, klachten, recepten, het weekmenu en je profiel in de app zelf corrigeren of wissen. Herintroductietesten kun je stoppen; de testgeschiedenis en tolerantie-uitkomsten staan ook in je volledige JSON-export.",
           "Je kunt het hele account in de app verwijderen (Profiel, typ VERWIJDER). Zonder in te loggen kun je een verwijderverzoek doen via de pagina Account verwijderen.",
           "Je kunt een klacht indienen bij de Autoriteit Persoonsgegevens.",
         ],

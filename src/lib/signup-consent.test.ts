@@ -29,11 +29,13 @@ async function redirectsTo(run: () => Promise<unknown>, url: string) {
 
 describe("signUp health-data consent", () => {
   const signUpAuth = vi.fn(async () => ({ error: null }));
+  const registrationCapacity = vi.fn(async () => ({ data: true, error: null }));
 
   beforeEach(() => {
     signUpAuth.mockClear();
+    registrationCapacity.mockClear();
     vi.mocked(createClient).mockReset();
-    vi.mocked(createClient).mockResolvedValue({ auth: { signUp: signUpAuth } } as never);
+    vi.mocked(createClient).mockResolvedValue({ auth: { signUp: signUpAuth }, rpc: registrationCapacity } as never);
   });
 
   it("does not create an account when the consent box is unticked", async () => {
@@ -53,5 +55,11 @@ describe("signUp health-data consent", () => {
         }),
       }),
     }));
+  });
+
+  it("does not create an account when the test phase is full", async () => {
+    registrationCapacity.mockResolvedValueOnce({ data: false, error: null });
+    await redirectsTo(() => signUp(signupForm(true)), "/registreren?error=vol");
+    expect(signUpAuth).not.toHaveBeenCalled();
   });
 });

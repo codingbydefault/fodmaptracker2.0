@@ -9,6 +9,7 @@ const errorMessages:Record<string,string>={
   bestaat:"Dit e-mailadres is al geregistreerd. Probeer in te loggen of gebruik ‘Wachtwoord vergeten’ op de inlogpagina.",
   wachtwoord:"Supabase heeft het wachtwoord afgekeurd. Kies een langer of sterker wachtwoord en probeer opnieuw.",
   limiet:"Er zijn te veel registratie- of e-mailpogingen gedaan. Wacht enkele minuten en probeer opnieuw.",
+  vol:"De testfase heeft het maximum van 100 gebruikers bereikt. Nieuwe registraties zijn tijdelijk gesloten.",
   database:"Supabase kon de gebruiker niet opslaan in de database. De database-trigger voor het aanmaken van het profiel moet worden gecontroleerd.",
   auth:"Registreren is mislukt door een niet-herkende Supabase Auth-fout. De foutcode wordt veilig in de serverlogs vastgelegd.",
   toestemming:"Vink de toestemming voor gezondheidsgegevens aan. Zonder die toestemming maken we geen account aan."

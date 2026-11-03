@@ -17,7 +17,8 @@ import { localizedMealNames, localizedSymptomNames } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { appCopy } from "@/lib/app-copy";
 import { workflowCopy } from "@/lib/workflow-copy";
-import { eliminationSchedule } from "@/lib/diet-phase";
+import { dietJourneyStage, eliminationSchedule } from "@/lib/diet-phase";
+import { dailyPhaseTip } from "@/lib/phase-daily-tips";
 export const metadata = { title: "Overzicht" };
 export default async function Dashboard() {
   const [{ user }, language] = await Promise.all([
@@ -76,41 +77,23 @@ export default async function Dashboard() {
     : null;
   const eliminationDay = elimination?.currentDay ?? null;
   const phasePlanComplete = elimination?.complete ?? false;
-  const phaseTips = {
-    nl: [
-      "Plan vandaag één eenvoudige maaltijd vooruit.",
-      "Controleer porties; ook low-FODMAP ingrediënten kunnen stapelen.",
-      "Noteer klachten zo snel mogelijk na de maaltijd.",
-      "Kies voor variatie binnen wat je goed verdraagt.",
-    ],
-    en: [
-      "Plan one simple meal ahead today.",
-      "Check portions; low-FODMAP ingredients can still add up.",
-      "Record symptoms as soon as possible after a meal.",
-      "Choose variety among the foods you tolerate well.",
-    ],
-    fr: [
-      "Planifiez aujourd’hui un repas simple à l’avance.",
-      "Vérifiez les portions ; les ingrédients pauvres en FODMAP peuvent aussi s’additionner.",
-      "Notez les symptômes dès que possible après le repas.",
-      "Variez les aliments que vous tolérez bien.",
-    ],
-    de: [
-      "Plane heute eine einfache Mahlzeit im Voraus.",
-      "Achte auf Portionen; auch Low-FODMAP-Zutaten können sich summieren.",
-      "Notiere Beschwerden möglichst bald nach der Mahlzeit.",
-      "Sorge für Abwechslung bei gut verträglichen Lebensmitteln.",
-    ],
-  };
-  const tip = eliminationDay ? phaseTips[language][eliminationDay % 4] : null;
-  const rotatingTip = Math.floor(new Date(`${today}T12:00:00Z`).getTime() / 86400000) % 3;
+  const journeyStage = dietJourneyStage(
+    phase?.phase_type ?? null,
+    {
+      hasEliminationHistory: journey.hasEliminationHistory,
+      hasActiveChallenge: Boolean(journey.activeChallenge),
+      toleranceCount: journey.toleranceCount,
+    },
+    phasePlanComplete,
+  );
+  const dailyTip = dailyPhaseTip(language, journeyStage, user.id, today);
   const phaseGuide = (() => {
     if (elimination && !phasePlanComplete) {
       return {
         title: phaseText.eliminationTitle,
         body: `${phaseText.day} ${eliminationDay} ${phaseText.of} ${elimination.plannedDays}`,
-        tip: tip ?? phaseText.startTips[rotatingTip],
-        href: "/profiel",
+        tip: dailyTip,
+        href: "/fases",
         action: phaseText.view,
         progress: eliminationDay ? (eliminationDay / elimination.plannedDays) * 100 : 0,
       };
@@ -121,7 +104,7 @@ export default async function Dashboard() {
         body: journey.activeChallenge
           ? `${journey.activeChallenge.test_food} · ${journey.activeChallengeDays}/3 ${phaseText.reintroActiveProgress}. ${phaseText.reintroActiveBody}`
           : phaseText.reintroActiveBody,
-        tip: phaseText.reintroActiveTips[rotatingTip],
+        tip: dailyTip,
         href: "/herintroductie",
         action: phaseText.reintroActiveAction,
         progress: (journey.activeChallengeDays / 3) * 100,
@@ -131,7 +114,7 @@ export default async function Dashboard() {
       return {
         title: phaseText.maintenanceTitle,
         body: `${journey.toleranceCount}/6 ${phaseText.maintenanceProgress}. ${phaseText.maintenanceBody}`,
-        tip: phaseText.maintenanceTips[rotatingTip],
+        tip: dailyTip,
         href: "/herintroductie",
         action: phaseText.maintenanceAction,
         progress: (journey.toleranceCount / 6) * 100,
@@ -141,7 +124,7 @@ export default async function Dashboard() {
       return {
         title: phaseText.reintroReadyTitle,
         body: phaseText.reintroReadyBody,
-        tip: phaseText.reintroReadyTips[rotatingTip],
+        tip: dailyTip,
         href: "/herintroductie",
         action: phaseText.reintroReadyAction,
         progress: 100,
@@ -150,8 +133,8 @@ export default async function Dashboard() {
     return {
       title: phaseText.startTitle,
       body: phaseText.startBody,
-      tip: phaseText.startTips[rotatingTip],
-      href: "/profiel#dieetbegeleiding",
+      tip: dailyTip,
+      href: "/fases",
       action: phaseText.startAction,
       progress: 0,
     };

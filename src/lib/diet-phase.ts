@@ -23,3 +23,26 @@ export function eliminationSchedule(
     plannedEnd: new Date(end).toISOString().slice(0, 10),
   };
 }
+
+export type DietJourneyStage =
+  | "not_started"
+  | "elimination"
+  | "reintroduction_ready"
+  | "reintroduction"
+  | "maintenance";
+
+export function dietJourneyStage(
+  phaseType: DietPhase["phase_type"] | null,
+  journey: {
+    hasEliminationHistory: boolean;
+    hasActiveChallenge: boolean;
+    toleranceCount: number;
+  },
+  eliminationComplete = false,
+): DietJourneyStage {
+  if (phaseType === "elimination" && !eliminationComplete) return "elimination";
+  if (journey.hasActiveChallenge || phaseType === "reintroduction") return "reintroduction";
+  if (journey.toleranceCount > 0) return "maintenance";
+  if (eliminationComplete || journey.hasEliminationHistory) return "reintroduction_ready";
+  return "not_started";
+}

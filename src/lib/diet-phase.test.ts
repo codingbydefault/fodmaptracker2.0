@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { eliminationSchedule } from "@/lib/diet-phase";
+import { dietJourneyStage, eliminationSchedule } from "@/lib/diet-phase";
 
 describe("eliminationSchedule", () => {
   it("uses the personal planned end date inclusively", () => {
@@ -20,5 +20,16 @@ describe("eliminationSchedule", () => {
     );
     expect(result.plannedDays).toBe(28);
     expect(result.currentDay).toBe(28);
+  });
+});
+
+describe("dietJourneyStage", () => {
+  const empty = { hasEliminationHistory: false, hasActiveChallenge: false, toleranceCount: 0 };
+  it("follows the user's saved progress", () => {
+    expect(dietJourneyStage(null, empty)).toBe("not_started");
+    expect(dietJourneyStage("elimination", empty)).toBe("elimination");
+    expect(dietJourneyStage(null, { ...empty, hasEliminationHistory: true })).toBe("reintroduction_ready");
+    expect(dietJourneyStage("reintroduction", empty)).toBe("reintroduction");
+    expect(dietJourneyStage(null, { ...empty, toleranceCount: 2 })).toBe("maintenance");
   });
 });

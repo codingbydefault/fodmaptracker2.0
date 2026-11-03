@@ -1,23 +1,24 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
-import { DietSafetyNotice } from "@/components/DietSafetyNotice";
 import { SubmitButton } from "@/components/SubmitButton";
 import { RecipeCarousel } from "@/components/RecipeCarousel";
 import {
   getActiveDietPhase,
   getCuratedRecipes,
+  getDietJourneySummary,
   getProfile,
   getRecipes,
   requireUser,
 } from "@/lib/data";
 import { deleteOwnAccount, recordHealthConsent } from "@/lib/account-actions";
 import { PRIVACY_NOTICE_VERSION } from "@/lib/privacy";
-import { startEliminationPhase, updateProfile } from "@/lib/profile-actions";
+import { updateProfile } from "@/lib/profile-actions";
 import { appCopy } from "@/lib/app-copy";
 import { appLanguage } from "@/lib/i18n";
 import { workflowCopy } from "@/lib/workflow-copy";
 import { profilePrivacyCopy } from "@/lib/profile-privacy-copy";
-import { eliminationSchedule } from "@/lib/diet-phase";
+import { dietJourneyStage, eliminationSchedule } from "@/lib/diet-phase";
+import { phasePageCopy } from "@/lib/phase-page-copy";
 
 export const metadata = { title: "Profiel" };
 
@@ -26,11 +27,12 @@ export default async function ProfilePage({
 }: {
   searchParams: Promise<{ message?: string; error?: string }>;
 }) {
-  const [{ user, supabase }, profile, phase, ownRecipes, suggestions, params] =
+  const [{ user, supabase }, profile, phase, journey, ownRecipes, suggestions, params] =
     await Promise.all([
       requireUser(),
       getProfile(),
       getActiveDietPhase(),
+      getDietJourneySummary(),
       getRecipes(),
       getCuratedRecipes(),
       searchParams,
@@ -41,6 +43,7 @@ export default async function ProfilePage({
   const pageText = appCopy[language].pages;
   const text = workflowCopy[language].profile;
   const privacyUi = profilePrivacyCopy[language];
+  const phaseUi = phasePageCopy[language];
   const extra =
     language === "en"
       ? {
@@ -114,8 +117,15 @@ export default async function ProfilePage({
   const elimination = phase?.phase_type === "elimination"
     ? eliminationSchedule(phase, today)
     : null;
-  const phaseDay = elimination?.currentDay ?? null;
-  const phasePlanComplete = elimination?.complete ?? false;
+  const journeyStage = dietJourneyStage(
+    phase?.phase_type ?? null,
+    {
+      hasEliminationHistory: journey.hasEliminationHistory,
+      hasActiveChallenge: Boolean(journey.activeChallenge),
+      toleranceCount: journey.toleranceCount,
+    },
+    elimination?.complete ?? false,
+  );
   const liked = suggestions.filter((recipe) => recipe.liked);
   return (
     <AppShell
@@ -150,9 +160,7 @@ export default async function ProfilePage({
       </header>
       {params.message && (
         <div className="notice">
-          {params.message === "eliminatie-gestart"
-            ? text.startedMessage
-            : params.message === "toestemming"
+          {params.message === "toestemming"
               ? "Je toestemming voor gezondheidsgegevens is vastgelegd."
               : "Je profiel is bijgewerkt."}
         </div>
@@ -169,11 +177,7 @@ export default async function ProfilePage({
                   ? "Het account kon niet worden verwijderd. Probeer opnieuw of gebruik de pagina Account verwijderen."
                   : params.error === "toestemming"
                     ? "De toestemming kon niet worden vastgelegd. Vink het vak aan en probeer opnieuw."
-                    : params.error === "fase-duur"
-                      ? text.durationError
-                    : params.error === "fase-veiligheid"
-                      ? "Lees de veiligheidsinformatie en bevestig deze voordat je de teller start."
-                      : "Opslaan is niet gelukt. Probeer opnieuw."}
+                    : "Opslaan is niet gelukt. Probeer opnieuw."}
         </div>
       )}
       <div className="grid-main">
@@ -197,92 +201,21 @@ export default async function ProfilePage({
           </dl>
           <p className="footer-note">{text.hint}</p>
         </section>
-        <section className="card" id="dieetbegeleiding">
+        <section className="card">
           <div className="eyebrow">{text.guidance}</div>
-          <h2 className="section-title">{text.elimination}</h2>
-          {phaseDay ? (
-            <>
-              <div className="stat-number">
-                {phasePlanComplete ? (
-                  text.daysComplete
-                ) : (
-                  <>
-                    {text.day} {phaseDay}
-                    <span style={{ fontSize: 13, color: "var(--muted)" }}>
-                      {" "}
-                      / {elimination?.plannedDays ?? 28}
-                    </span>
-                  </>
-                )}
-              </div>
-              <p className="subtle">
-                {text.started}{" "}
-                {new Intl.DateTimeFormat(language, {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                  timeZone: "Europe/Amsterdam",
-                }).format(new Date(phase!.started_at))}
-                .
-              </p>
-              {phasePlanComplete && (
-                <p>{workflowCopy[language].phase.completeBody}</p>
-              )}
-            </>
-          ) : (
-            <p className="subtle">{text.none}</p>
+          <h2 className="section-title">{phaseUi.stages[journeyStage]}</h2>
+          {journeyStage === "elimination" && elimination && (
+            <p className="subtle">{text.day} {elimination.currentDay} / {elimination.plannedDays}</p>
           )}
-          <form action={startEliminationPhase}>
-            <div className="field" style={{ marginBottom: 12 }}>
-              <label htmlFor="duration_days">{text.durationLabel}</label>
-              <input
-                id="duration_days"
-                name="duration_days"
-                type="number"
-                min={14}
-                max={42}
-                step={1}
-                defaultValue={28}
-                inputMode="numeric"
-                required
-              />
-              <small>{text.durationHelp}</small>
-            </div>
-            <label
-              className="filter-check"
-              htmlFor="safety_acknowledgement"
-              style={{
-                whiteSpace: "normal",
-                alignItems: "flex-start",
-                marginBottom: 12,
-              }}
-            >
-              <input
-                id="safety_acknowledgement"
-                name="safety_acknowledgement"
-                type="checkbox"
-                value="yes"
-                required
-                style={{ marginTop: 4 }}
-              />
-              <span>{text.safety}</span>
-            </label>
-            <SubmitButton className="btn btn-secondary">
-              {phaseDay ? text.restart : text.start}
-            </SubmitButton>
-          </form>
-          <p className="footer-note">{text.restartNote}</p>
+          {journeyStage === "reintroduction" && journey.activeChallenge && (
+            <p className="subtle">{journey.activeChallenge.test_food} · {journey.activeChallengeDays}/3</p>
+          )}
+          {journeyStage === "maintenance" && (
+            <p className="subtle">{journey.toleranceCount}/6 {phaseUi.maintenance.progress}</p>
+          )}
+          <Link className="btn btn-secondary" href="/fases">{workflowCopy[language].phase.view} →</Link>
         </section>
       </div>
-      <DietSafetyNotice language={language} />
-      <section className="card" style={{ marginTop: 18 }}>
-        <div className="eyebrow">{text.steps}</div>
-        <h2 className="section-title">{text.reintro}</h2>
-        <p className="subtle">{text.reintroBody}</p>
-        <Link className="btn" href="/herintroductie">
-          {text.openReintro} →
-        </Link>
-      </section>
       <section id="recepten" style={{ marginTop: 22 }}>
         <div className="section-heading">
           <div>

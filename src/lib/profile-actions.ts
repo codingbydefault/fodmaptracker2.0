@@ -107,11 +107,11 @@ export async function updateFodmapPreferences(form: FormData) {
 
 export async function startEliminationPhase(form: FormData) {
   if (field(form, "safety_acknowledgement") !== "yes")
-    redirect("/profiel?error=fase-veiligheid");
+    redirect("/fases?error=fase-veiligheid");
   const duration = z.coerce.number().int().min(14).max(42).safeParse(
     field(form, "duration_days"),
   );
-  if (!duration.success) redirect("/profiel?error=fase-duur");
+  if (!duration.success) redirect("/fases?error=fase-duur");
   const { supabase, user } = await requireUser();
   const today = new Date();
   const plannedEnd = new Date(today);
@@ -123,7 +123,7 @@ export async function startEliminationPhase(form: FormData) {
     .update({ status: "cancelled", ended_at: iso(today) })
     .eq("user_id", user.id)
     .eq("status", "active");
-  if (endError) redirect("/profiel?error=fase");
+  if (endError) redirect("/fases?error=fase");
   const { error } = await supabase
     .from("diet_phases")
     .insert({
@@ -133,10 +133,11 @@ export async function startEliminationPhase(form: FormData) {
       started_at: iso(today),
       planned_end_at: iso(plannedEnd),
     });
-  if (error) redirect("/profiel?error=fase");
+  if (error) redirect("/fases?error=fase");
   revalidatePath("/dashboard");
   revalidatePath("/profiel");
-  redirect("/profiel?message=eliminatie-gestart");
+  revalidatePath("/fases");
+  redirect("/fases?message=eliminatie-gestart");
 }
 
 export async function toggleRecipeLike(form: FormData) {

@@ -1,6 +1,6 @@
 import type { AppLanguage } from "@/lib/i18n";
 
-export const PRIVACY_NOTICE_VERSION = "2026-11-03";
+export const PRIVACY_NOTICE_VERSION = "2026-11-03.1";
 
 export const PRIVACY_CONTACT_EMAIL = "codedbydefault@gmail.com";
 
@@ -56,7 +56,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
           "Gezondheidsgegevens: maaltijden (naam, eetmoment, hoeveelheid, notities, tijdstip en een optionele foto), klachten (soort, eigen omschrijving, ernst van 0 tot 10, notities, tijdstip en een optionele koppeling aan een maaltijd), de dieetfase die je zelf start, herintroductietesten en je persoonlijke tolerantie-uitkomsten.",
           "Recepten en weekmenu: recepten die je zelf invoert, of je ze privé houdt of deelt met andere ingelogde gebruikers, favorieten, en de planning per dag en eetmoment.",
           "Etiketcontrole: als je uitdrukkelijk kiest voor ‘Product in de app bewaren’, delen we de barcode, het land van aankoop en de intern herkende ingrediënten in de productencatalogus zodat andere gebruikers het product niet opnieuw hoeven te fotograferen. De etiketfoto zelf blijft privé bij jouw account.",
-          "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Vercel Analytics en Speed Insights kunnen anonieme gebruiks- en prestatiemetingen van pagina’s ontvangen. Die metingen bevatten niet de inhoud van je dagboek.",
+          "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Voor onze eigen bezoekersteller bewaren we in je browser een willekeurige anonieme code en per browsersessie een tijdelijke code. In de database staan daarvan alleen onomkeerbare hashes, eerste en laatste bezoek en het aantal sessies; geen IP-adres, browserkenmerken, e-mailadres of dagboekinhoud. Vercel Analytics en Speed Insights kunnen daarnaast anonieme gebruiks- en prestatiemetingen van pagina’s ontvangen.",
         ],
       },
       {

@@ -116,6 +116,6 @@ describe("privacy notice draft", () => {
     expect(PRIVACY_CONTACT_EMAIL).toBe("codedbydefault@gmail.com");
     expect(notice.regionTodo).toContain("TODO");
     expect(notice.draft.toLowerCase()).toContain("concept");
-    expect(PRIVACY_NOTICE_VERSION).toBe("2026-11-03");
+    expect(PRIVACY_NOTICE_VERSION).toBe("2026-11-03.1");
   });
 });

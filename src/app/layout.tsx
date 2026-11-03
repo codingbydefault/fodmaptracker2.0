@@ -6,6 +6,7 @@ import { isArticleLanguage } from "@/lib/articles";
 import { languageInfo } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { isHalloweenToday } from "@/lib/seasonal";
+import { VisitorTracker } from "@/components/VisitorTracker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -54,5 +55,5 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const pathname = (await headers()).get("x-pathname") ?? "";
   const segment = pathname.split("/").filter(Boolean)[0] ?? "";
   const language = isArticleLanguage(segment) ? segment : await getRequestLanguage();
-  return <html lang={languageInfo[language].locale}><body className={isHalloweenToday()?"halloween-theme":undefined}>{children}<Analytics /><SpeedInsights /></body></html>;
+  return <html lang={languageInfo[language].locale}><body className={isHalloweenToday()?"halloween-theme":undefined}>{children}<VisitorTracker/><Analytics /><SpeedInsights /></body></html>;
 }

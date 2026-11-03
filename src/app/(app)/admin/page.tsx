@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/data";
 import { AppShell } from "@/components/AppShell";
+import { SubmitButton } from "@/components/SubmitButton";
+import { resetVisitorStats } from "@/lib/admin-actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Beheer en stabiliteit" };
@@ -36,6 +38,10 @@ type MonitoringStats = {
   errors_last_7d: number;
   last_error_at: string | null;
   recent_events: MonitoringEvent[];
+  unique_visitors: number;
+  total_visit_sessions: number;
+  visits_today: number;
+  visitor_tracking_started_at: string | null;
 };
 
 const number = (value: number) => value.toLocaleString("nl-NL");
@@ -66,7 +72,8 @@ function Metric({
   );
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{message?:string;error?:string}> }) {
+  const query = await searchParams;
   const { supabase, user } = await requireUser();
 
   const { data: isAdmin, error: adminCheckError } = await supabase.rpc("is_app_admin");
@@ -174,6 +181,23 @@ export default async function AdminPage() {
             ))
           )}
         </div>
+      </section>
+
+      <section style={{ marginTop: 18 }}>
+        <h2 className="section-title" style={{ marginBottom: 10 }}>Bezoekers sinds de teststart</h2>
+        {query.message === "reset" && <div className="notice">De bezoekerstelling is opnieuw gestart.</div>}
+        {query.error === "reset" && <div className="notice notice-error">De bezoekerstelling kon niet worden gereset. Typ RESET exact en probeer opnieuw.</div>}
+        {monitoringError || !monitoring ? <div className="notice notice-error">De bezoekerstelling wordt actief na Supabase-migratie 0030.</div> : <>
+          <div className="stat-grid">
+            <Metric label="Unieke bezoekers" value={number(monitoring.unique_visitors)} detail="Anonieme browsers sinds de start" />
+            <Metric label="Bezoeken" value={number(monitoring.total_visit_sessions)} detail="Nieuwe browsersessies" />
+            <Metric label="Bezoeken vandaag" value={number(monitoring.visits_today)} detail="Tijdzone Europa/Amsterdam" />
+          </div>
+          <div className="card" style={{marginTop:12}}>
+            <div className="entry"><div><div className="entry-title">Privacyvriendelijke telling</div><div className="subtle" style={{fontSize:12}}>Actief sinds {dateTime(monitoring.visitor_tracking_started_at)} · geen IP-adressen, e-mailadressen of gezondheidsgegevens.</div></div><span className="pill">Actief</span></div>
+            <details style={{marginTop:14}}><summary style={{cursor:"pointer",fontWeight:700}}>Teller resetten bij officiële lancering</summary><form action={resetVisitorStats} style={{marginTop:14}}><p className="subtle">Dit wist uitsluitend de anonieme bezoeker- en sessietellingen. Accounts en appgegevens blijven behouden.</p><div className="field" style={{maxWidth:320}}><label htmlFor="reset_confirmation">Typ RESET</label><input id="reset_confirmation" name="reset_confirmation" autoComplete="off" required pattern="RESET"/></div><div className="form-actions"><SubmitButton className="btn btn-danger" confirmMessage="Alle anonieme bezoekerstatistieken op nul zetten? Accounts en appgegevens blijven behouden.">Bezoekerstelling resetten</SubmitButton></div></form></details>
+          </div>
+        </>}
       </section>
 
       <section style={{ marginTop: 18 }}>

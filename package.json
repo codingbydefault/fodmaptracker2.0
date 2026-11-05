@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:db": "supabase test db",
     "security:check": "node scripts/security-check.mjs",
     "security:posture": "node scripts/security-posture-check.mjs"
   },

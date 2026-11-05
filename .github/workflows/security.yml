@@ -10,6 +10,24 @@ permissions:
   contents: read
 
 jobs:
+  database-authorization:
+    name: Database authorization tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+
+      - name: Start isolated Supabase test stack
+        run: supabase start
+
+      - name: Test RLS and privileged database functions
+        run: npm run test:db
+
   security:
     name: Secret scan, dependency audit and build checks
     runs-on: ubuntu-latest

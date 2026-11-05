@@ -1,0 +1,2 @@
+-- Intentionally empty. Authorization fixtures live in transactionally rolled
+-- back pgTAP tests under supabase/tests and must never seed development data.

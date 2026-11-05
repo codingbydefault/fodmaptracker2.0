@@ -11,6 +11,10 @@ const migrations = await Promise.all(
 const hardeningMigration = migrations.find(({ name }) => name.endsWith("_harden_patient_data_access.sql"));
 const nextConfig = await readFile(path.join(root, "next.config.ts"), "utf8");
 const workflow = await readFile(path.join(root, ".github", "workflows", "security.yml"), "utf8");
+const authorizationTests = await readFile(
+  path.join(root, "supabase", "tests", "patient_data_authorization_test.sql"),
+  "utf8",
+);
 
 const failures = [];
 const requireMatch = (condition, message) => { if (!condition) failures.push(message); };
@@ -22,6 +26,10 @@ requireMatch(hardeningMigration?.sql.includes("revoke all on function public.han
 requireMatch(nextConfig.includes("Content-Security-Policy-Report-Only"), "A report-only CSP must be configured before enforcement.");
 requireMatch(workflow.includes("npm audit --audit-level=high"), "CI must block high-severity dependency vulnerabilities.");
 requireMatch(workflow.includes("npm run security:posture"), "CI must run this security posture check.");
+requireMatch(workflow.includes("npm run test:db"), "CI must run the database authorization suite.");
+requireMatch(authorizationTests.includes("select plan(26)"), "The authorization suite must declare all 26 checks.");
+requireMatch(authorizationTests.includes("set status = 'revoked'"), "The authorization suite must test immediate consent revocation.");
+requireMatch(authorizationTests.trimEnd().endsWith("rollback;"), "Database authorization tests must roll back all fixtures.");
 
 const unsafeDefiners = migrations.flatMap(({ name, sql }) => {
   const lines = sql.split(/\r?\n/);

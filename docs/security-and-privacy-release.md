@@ -18,7 +18,8 @@ Dit document is het technische go/no-go-register. Juridische onderdelen moeten v
 - [x] De testlimiet weigert registratie wanneer 100 accounts bestaan, ook bij gelijktijdige registratie.
 - [x] Beveiligingsmigratie van 5 november 2026 is uitgevoerd in productieproject `vwnbuaeepubfmrdjodbd`.
 - [ ] Supabase Security Advisor en Performance Advisor geven geen onverklaarde waarschuwingen.
-- [ ] Allow- en deny-tests voor patiënt, diëtist, beheerder, authenticated en anon slagen tegen een testdatabase.
+- [x] Transactionele allow- en deny-tests voor patiënt, diëtist, beheerder, authenticated en anon zijn opgenomen in CI.
+- [x] De 26 database-autorisatietests zijn op 5 november 2026 transactioneel geslaagd tegen productie en volledig teruggedraaid.
 - [ ] DPIA is beoordeeld en goedgekeurd.
 - [ ] Verwerkersovereenkomsten en subverwerkers zijn gecontroleerd.
 - [ ] Bewaar- en verwijdertermijnen zijn juridisch vastgesteld en gepubliceerd.
@@ -60,6 +61,8 @@ De CI voert dezelfde controles uit. Een productie-release mag niet buiten de bes
 - Performance Advisor: 0 fouten, 18 waarschuwingen en 25 suggesties; deze zijn nog niet individueel afgehandeld.
 - Projectoverzicht: Free-plan en **No backups**. Dit voldoet nog niet aan de eis voor patiëntgegevens.
 - De SQL is via de Dashboard-editor uitgevoerd. De repositorymigratie blijft de bron voor herhaalbare omgevingen; controle van formele migratiehistorie blijft nodig.
+- De pgTAP-autorisatieset heeft 26 van 26 controles doorlopen. De testtransactie eindigde met `rollback`, zodat geen testaccounts of testgezondheidsgegevens zijn bewaard.
+- Gecontroleerd: patiënt A/B-isolatie, verbod op schrijven voor een andere patiënt, pending versus geverifieerde diëtist, afzonderlijke deeltoestemmingen, onmiddellijke intrekking, admin-RPC en anonieme toegang.
 
 ## Resterende fasen
 
@@ -76,10 +79,11 @@ De CI voert dezelfde controles uit. Een productie-release mag niet buiten de bes
 ### Testkwaliteit
 
 - [x] Unit tests aanwezig.
-- [ ] Database-integratietests uitvoeren in geïsoleerde Supabase-testomgeving.
+- [x] Database-integratietests en geïsoleerde Supabase CI-job toegevoegd.
+- [ ] Eerste groene GitHub CI-uitvoering als aanvullend releasebewijs vastleggen.
 - [ ] Authenticatie- en sessietests automatiseren.
-- [ ] Autorisatie- en RLS-deny-tests automatiseren.
-- [ ] Patiënt-diëtistkoppeling end-to-end testen.
+- [x] Autorisatie- en RLS-deny-tests geautomatiseerd.
+- [x] Patiënt-diëtistkoppeling, scopes en intrekking op databaseniveau getest.
 - [ ] Testaccountlimiet en toekomstige abonnementslimieten end-to-end testen.
 
 ### Mobiel en lancering

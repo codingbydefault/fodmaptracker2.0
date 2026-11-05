@@ -75,6 +75,9 @@ De CI voert dezelfde controles uit. Een productie-release mag niet buiten de bes
 - [x] CSP staat in report-only-modus; rapportage beoordelen voordat deze afdwingend wordt.
 - [x] Dependency-audit blokkeert high/critical kwetsbaarheden in CI.
 - [x] Incidentresponsprocedure gedocumenteerd.
+- [x] API-mutaties blokkeren afwijkende browser-origins en begrenzen requestgroottes.
+- [x] Publieke en kostbare API-routes hebben een eerste applicatielaag voor rate limiting.
+- [ ] Distributed rate limiting via Vercel Firewall of gedeelde datastore instellen; de huidige in-memory limiet is alleen een eerste verdedigingslaag per serverinstantie.
 
 ### Testkwaliteit
 

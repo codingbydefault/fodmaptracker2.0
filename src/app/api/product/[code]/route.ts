@@ -1,6 +1,7 @@
 import { normalizeBarcode, parseOpenFoodFactsProduct } from "@/lib/open-food-facts";
 import { createClient } from "@/lib/supabase/server";
 import { optimizeUploadedImage } from "@/lib/image-processing";
+import { enforceRateLimit, rejectCrossOrigin, rejectOversizedBody } from "@/lib/api-security";
 
 const countryCode = (value: string | null) => /^[A-Z]{2}$/.test(value ?? "") ? value! : "NL";
 const saveErrors = new Set([
@@ -14,6 +15,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ code
   if (!barcode) return Response.json({ error: "Ongeldige barcode." }, { status: 400 });
   const country = countryCode(new URL(request.url).searchParams.get("country")?.toUpperCase() ?? null);
   try {
+    const rateError = await enforceRateLimit(request, "product-read", 60, 60_000);
+    if (rateError) return rateError;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     const { data: catalogProduct } = await supabase.from("product_catalog").select("ingredients_text").eq("barcode", barcode).eq("country_code", country).maybeSingle();
@@ -37,12 +40,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ code
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ code: string }> }) {
+  const originError = rejectCrossOrigin(request);
+  if (originError) return originError;
+  const sizeError = rejectOversizedBody(request, 6 * 1024 * 1024);
+  if (sizeError) return sizeError;
   const barcode = normalizeBarcode((await params).code);
   if (!barcode) return Response.json({ error: "Ongeldige barcode." }, { status: 400 });
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return Response.json({ error: "Log opnieuw in om dit product te bewaren." }, { status: 401 });
+    const rateError = await enforceRateLimit(request, "product-save", 12, 60_000, user.id);
+    if (rateError) return rateError;
     const form = await request.formData();
     const photo = form.get("photo");
     const ingredients = String(form.get("ingredients") ?? "").trim();

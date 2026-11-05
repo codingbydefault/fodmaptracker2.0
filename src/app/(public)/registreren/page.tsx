@@ -10,7 +10,7 @@ const errors: Record<string, string> = {
   bestaat: "Dit e-mailadres is al geregistreerd. Probeer in te loggen.",
   wachtwoord: "Kies een langer of sterker wachtwoord.", limiet: "Te veel pogingen. Wacht enkele minuten.",
   vol: "De testfase heeft het maximum van 100 accounts bereikt.", database: "Het profiel kon niet worden aangemaakt.",
-  toestemming: "Lees de privacyverklaring en bevestig de verwerking.", auth: "Registreren is niet gelukt.",
+  toestemming: "Lees de privacyverklaring en bevestig de verwerking.", voorwaarden: "Lees en accepteer de conceptvoorwaarden om een testaccount aan te maken.", auth: "Registreren is niet gelukt.",
 };
 
 export default async function Register({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -28,6 +28,7 @@ export default async function Register({ searchParams }: { searchParams: Promise
       <div className="field"><label htmlFor="password">Wachtwoord (minimaal 10 tekens)</label><input id="password" name="password" type="password" autoComplete="new-password" required minLength={10} maxLength={128}/></div>
       <div className="field"><label htmlFor="preferred_language">Language · Taal · Langue · Sprache</label><select id="preferred_language" name="preferred_language" defaultValue="en"><option value="en">🇬🇧 English</option><option value="nl">🇳🇱 Nederlands</option><option value="fr">🇫🇷 Français</option><option value="de">🇩🇪 Deutsch</option></select></div>
       <label className="filter-check" htmlFor="health_consent" style={{whiteSpace:"normal",alignItems:"flex-start"}}><input id="health_consent" name="health_consent" type="checkbox" value="yes" required style={{marginTop:4}}/><span>Ik heb de <Link href="/privacy">privacyverklaring</Link> gelezen en stem in met de verwerking die bij het gekozen profiel hoort.</span></label>
+      <label className="filter-check" htmlFor="terms_consent" style={{whiteSpace:"normal",alignItems:"flex-start"}}><input id="terms_consent" name="terms_consent" type="checkbox" value="yes" required style={{marginTop:4}}/><span>Ik heb de <Link href="/voorwaarden">conceptvoorwaarden</Link> gelezen en accepteer deze voor deelname aan de testfase.</span></label>
       <SubmitButton className="btn">Account aanmaken →</SubmitButton>
     </form>
     <p className="footer-note">Een diëtistenaccount krijgt pas toegang tot gedeelde cliëntgegevens na verificatie én expliciete toestemming van de cliënt.</p>

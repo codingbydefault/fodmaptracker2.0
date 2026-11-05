@@ -11,7 +11,13 @@ export function PublicFooter({ lang = "nl" }: { lang?: AppLanguage }) {
       {" · "}
       <Link href="/registreren">{copy.signup}</Link>
       {" · "}
+      <Link href="/voorwaarden">Voorwaarden</Link>
+      {" · "}
+      <Link href="/privacy">Privacy</Link>
+      {" · "}
       <a href="/?cookie-settings=1">Cookievoorkeuren</a>
+      <br />
+      <span>Gemaakt en beheerd door CodedByDefault · KvK 42171617 · btw NL005557496B77</span>
     </footer>
   );
 }

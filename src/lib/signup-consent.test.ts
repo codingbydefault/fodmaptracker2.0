@@ -13,12 +13,14 @@ vi.mock("@/lib/data", () => ({ requireUser: vi.fn() }));
 import { createClient } from "@/lib/supabase/server";
 import { signUp } from "@/lib/actions";
 import { PRIVACY_NOTICE_VERSION } from "@/lib/privacy";
+import { TERMS_VERSION } from "@/lib/terms";
 
 function signupForm(consent: boolean) {
   const form = new FormData();
   form.set("email", "sam@example.com");
   form.set("password", "lang-wachtwoord");
   form.set("preferred_language", "nl");
+  form.set("terms_consent", "yes");
   if (consent) form.set("health_consent", "yes");
   return form;
 }
@@ -51,6 +53,7 @@ describe("signUp health-data consent", () => {
         data: expect.objectContaining({
           health_data_consent: "true",
           privacy_notice_version: PRIVACY_NOTICE_VERSION,
+          terms_version: TERMS_VERSION,
           preferred_language: "nl",
         }),
       }),

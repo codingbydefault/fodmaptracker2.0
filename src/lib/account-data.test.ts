@@ -94,7 +94,7 @@ describe("export ownership", () => {
 describe("csv export", () => {
   it("writes meal and symptom columns and escapes quotes", () => {
     const meals = mealsToCsv([{ id: "1", eaten_at: "2026-10-30T08:00:00Z", meal_type: "ontbijt", food_name: 'Haver, "groot"', portion_description: null, notes: "regel\ntwee", photo_path: null, created_at: "2026-10-30T08:00:00Z" }]);
-    expect(meals.split("\r\n")[0]).toBe("id,eaten_at,meal_type,food_name,portion_description,notes,photo_path,created_at");
+    expect(meals.split("\r\n")[0]).toBe("id,eaten_at,meal_type,food_name,portion_description,reintroduction_group,reintroduction_test_food,notes,photo_path,created_at");
     expect(meals).toContain('"Haver, ""groot"""');
     expect(meals).toContain('"regel\ntwee"');
     const symptoms = symptomsToCsv([{ id: "3", experienced_at: "2026-10-30T09:00:00Z", symptom_type: "buikpijn", custom_symptom: null, severity: 4, notes: "", food_entry_id: "1", created_at: "2026-10-30T09:00:00Z" }]);

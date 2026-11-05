@@ -40,7 +40,7 @@ export async function getFoodEntries(limit = 50): Promise<FoodEntry[]> {
   const { data, error } = await supabase
     .from("food_entries")
     .select(
-      "id,user_id,food_name,meal_type,portion_description,notes,photo_path,eaten_at,created_at",
+      "id,user_id,food_name,meal_type,portion_description,notes,photo_path,reintroduction_challenge_id,reintroduction_group,reintroduction_test_food,eaten_at,created_at",
     )
     .eq("user_id", user.id)
     .order("eaten_at", { ascending: false })
@@ -53,7 +53,7 @@ export async function getFoodEntry(id: string): Promise<FoodEntry | null> {
   const { data, error } = await supabase
     .from("food_entries")
     .select(
-      "id,user_id,food_name,meal_type,portion_description,notes,photo_path,eaten_at,created_at",
+      "id,user_id,food_name,meal_type,portion_description,notes,photo_path,reintroduction_challenge_id,reintroduction_group,reintroduction_test_food,eaten_at,created_at",
     )
     .eq("id", id)
     .eq("user_id", user.id)
@@ -288,18 +288,6 @@ export async function getCuratedRecipes(): Promise<CuratedRecipe[]> {
   })) as CuratedRecipe[];
 }
 
-export async function getReintroductionRecipes(group: FodmapGroup): Promise<CuratedRecipe[]> {
-  const { supabase, user } = await requireUser();
-  const [{ data, error }, { data: likes }] = await Promise.all([
-    supabase.from("curated_recipes")
-      .select("id,title,summary,category,source_name,source_url,suitable_for_elimination,servings,preparation_minutes,ingredients,instructions,attribution_note,phase_note,recipe_role,reintroduction_group")
-      .eq("published", true).eq("recipe_role", "reintroduction").eq("reintroduction_group", group).order("title"),
-    supabase.from("recipe_likes").select("curated_recipe_id").eq("user_id", user.id),
-  ]);
-  if (error) throw new Error("De herintroductierecepten konden niet worden geladen.");
-  const liked = new Set((likes ?? []).map((item) => item.curated_recipe_id as string));
-  return (data ?? []).map((recipe) => ({ ...recipe, liked: liked.has(recipe.id) })) as CuratedRecipe[];
-}
 export async function getCuratedRecipe(
   id: string,
 ): Promise<CuratedRecipe | null> {

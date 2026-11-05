@@ -123,6 +123,11 @@ export const availableRecipeImageSlugs = [
 const availableRecipeImages = new Set<string>(availableRecipeImageSlugs);
 
 const recipeImageAliases: Record<string, string> = {
+  "Citroen-kruidenkip met romige polenta en spinazie": "kabeljauw-met-romige-polenta-en-spinazie",
+  "Krokante aardappel-tonijnbowl met boontjes en dille": "tonijn-aardappelsalade",
+  "Gember-sesamrijstnoedels met omelet en paksoi": "tofu-pad-thai-zonder-ui-en-knoflook",
+  "Ovenfrittata met aardappel, tomaat en feta": "ovenomelet-met-tomaat-en-feta",
+  "Gebakken havervierkantjes met kiwi en kaneel": "havermout-blueberrymuffins",
   "Koude rijstnoedelsalade met limoen-kip": "aziatische-kip-noedelsalade",
   "Lauwe quinoa-paksoisalade met sinaasappel": "aziatische-quinoasalade",
   "Cacao-haverballetjes met pinda en pompoenpit": "chocolade-macadamia-energiebolletjes",

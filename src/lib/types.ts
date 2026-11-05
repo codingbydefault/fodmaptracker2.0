@@ -15,6 +15,9 @@ export interface FoodEntry {
   portion_description: string | null;
   notes: string | null;
   photo_path: string | null;
+  reintroduction_challenge_id: string | null;
+  reintroduction_group: FodmapGroup | null;
+  reintroduction_test_food: string | null;
   photo_url?: string | null;
   eaten_at: string;
   created_at: string;

@@ -3,6 +3,7 @@ import { addFoodEntry, deleteFoodEntry } from "@/lib/actions";
 import { requireUser, getFoodEntries } from "@/lib/data";
 import { AppShell } from "@/components/AppShell";
 import { mealNames } from "@/lib/types";
+import { fodmapGroupNames } from "@/lib/fodmap-guide";
 import Link from "next/link";
 export const metadata = { title: "Voedingsdagboek" };
 export default async function FoodPage({
@@ -10,11 +11,17 @@ export default async function FoodPage({
 }: {
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
-  const [{ user }, entries, params] = await Promise.all([
+  const [{ user, supabase }, entries, params] = await Promise.all([
     requireUser(),
     getFoodEntries(100),
     searchParams,
   ]);
+  const { data: activeChallenge } = await supabase
+    .from("reintroduction_challenges")
+    .select("fodmap_group,test_food")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .maybeSingle();
   return (
     <AppShell active="voeding" email={user.email ?? "Account"}>
       <header style={{ marginBottom: 20 }}>
@@ -47,6 +54,11 @@ export default async function FoodPage({
       <div className="grid-main">
         <section className="card">
           <h2 className="section-title">Maaltijd toevoegen</h2>
+          {activeChallenge && (
+            <div className="notice" style={{ marginTop: 12 }}>
+              Actieve herintroductie: <strong>{fodmapGroupNames[activeChallenge.fodmap_group as keyof typeof fodmapGroupNames]}</strong> · {activeChallenge.test_food}. Deze context wordt automatisch opgeslagen bij je maaltijd.
+            </div>
+          )}
           <p
             className="subtle"
             style={{ fontSize: 13, marginTop: 4, marginBottom: 18 }}
@@ -150,6 +162,12 @@ export default async function FoodPage({
                   {x.portion_description && (
                     <div className="subtle" style={{ fontSize: 12 }}>
                       Hoeveelheid: {x.portion_description}
+                    </div>
+                  )}
+                  {x.reintroduction_group && (
+                    <div className="recipe-badges" style={{ marginTop: 6 }}>
+                      <span className="pill">Herintroductie · {fodmapGroupNames[x.reintroduction_group]}</span>
+                      {x.reintroduction_test_food && <span className="pill">{x.reintroduction_test_food}</span>}
                     </div>
                   )}
                   {x.notes && (

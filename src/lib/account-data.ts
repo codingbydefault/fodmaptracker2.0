@@ -46,7 +46,7 @@ const photoBuckets = ["meal-photos", "profile-photos", "label-photos"] as const;
 
 const selects = {
   profiles: "id,display_name,username,avatar_path,preferred_language,account_type,timezone,health_data_consent_at,privacy_notice_version,created_at,updated_at",
-  food_entries: "id,user_id,food_name,meal_type,portion_description,notes,photo_path,eaten_at,created_at",
+  food_entries: "id,user_id,food_name,meal_type,portion_description,notes,photo_path,reintroduction_challenge_id,reintroduction_group,reintroduction_test_food,eaten_at,created_at",
   symptom_entries: "id,user_id,food_entry_id,symptom_type,custom_symptom,severity,notes,experienced_at,created_at",
   recipes: "id,user_id,title,description,servings,preparation_minutes,ingredients,instructions,is_public,created_at,updated_at",
   weekly_menu_entries: "id,user_id,recipe_id,curated_recipe_id,planned_for,meal_type,planned_servings,created_at",
@@ -172,7 +172,7 @@ export function toCsv(rows: AccountRow[], columns: string[]): string {
   return `${lines.join("\r\n")}\r\n`;
 }
 
-export const mealCsvColumns = ["id", "eaten_at", "meal_type", "food_name", "portion_description", "notes", "photo_path", "created_at"];
+export const mealCsvColumns = ["id", "eaten_at", "meal_type", "food_name", "portion_description", "reintroduction_group", "reintroduction_test_food", "notes", "photo_path", "created_at"];
 export const symptomCsvColumns = ["id", "experienced_at", "symptom_type", "custom_symptom", "severity", "notes", "food_entry_id", "created_at"];
 
 export function mealsToCsv(rows: AccountRow[]) {

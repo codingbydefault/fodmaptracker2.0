@@ -80,7 +80,7 @@ De CI voert dezelfde controles uit. Een productie-release mag niet buiten de bes
 
 - [x] Unit tests aanwezig.
 - [x] Database-integratietests en geïsoleerde Supabase CI-job toegevoegd.
-- [ ] Eerste groene GitHub CI-uitvoering als aanvullend releasebewijs vastleggen.
+- [x] Eerste groene GitHub CI-uitvoering vastgelegd: run `42078606355`, 5 november 2026; databasejob 1m53s.
 - [ ] Authenticatie- en sessietests automatiseren.
 - [x] Autorisatie- en RLS-deny-tests geautomatiseerd.
 - [x] Patiënt-diëtistkoppeling, scopes en intrekking op databaseniveau getest.

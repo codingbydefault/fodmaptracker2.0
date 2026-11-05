@@ -29,6 +29,9 @@ jobs:
       - name: Scan source for accidental secrets
         run: npm run security:check
 
+      - name: Check security posture invariants
+        run: npm run security:posture
+
       - name: Audit dependencies
         run: npm audit --audit-level=high
 

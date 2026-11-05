@@ -4,13 +4,13 @@ import { containsFodmapThreshold, getArticles, ingredientLine, isThresholdSenten
 describe("published articles", () => {
   const articles = getArticles();
 
-  it("loads 8 articles in nl, fr, de and en", () => {
-    expect(new Set(articles.map(article => article.slug)).size).toBe(8);
+  it("loads 11 articles in nl, fr, de and en", () => {
+    expect(new Set(articles.map(article => article.slug)).size).toBe(11);
     for (const lang of ["nl", "fr", "de", "en"] as const) {
-      expect(articles.filter(article => article.lang === lang)).toHaveLength(8);
+      expect(articles.filter(article => article.lang === lang)).toHaveLength(11);
     }
     expect(articles.filter(article => article.category === "recept")).toHaveLength(24);
-    expect(articles.filter(article => article.category === "gids")).toHaveLength(8);
+    expect(articles.filter(article => article.category === "gids")).toHaveLength(20);
   });
 
   it("shows a FODMAP status label and no number for each ingredient", () => {

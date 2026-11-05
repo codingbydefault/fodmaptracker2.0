@@ -1864,3 +1864,47 @@ button:disabled {
     scroll-snap-align: start;
   }
 }
+
+/* Analytics consent is shown only in the marketing document, never in patient pages. */
+.cookie-choice-panel {
+  position: fixed;
+  z-index: 1100;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: max(16px, env(safe-area-inset-left));
+  display: flex;
+  max-width: 920px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 16px 48px rgba(24, 47, 32, .2);
+}
+.cookie-choice-panel h2 { margin: 0 0 6px; font-size: 19px; }
+.cookie-choice-panel p { margin: 0; max-width: 590px; color: var(--muted); font-size: 13px; }
+.cookie-choice-panel p a { text-decoration: underline; text-underline-offset: 3px; }
+.cookie-choice-actions { display: flex; flex-shrink: 0; flex-direction: column; gap: 8px; }
+.cookie-choice-actions button { min-height: 42px; padding: 10px 14px; border-radius: 10px; font-weight: 650; }
+.cookie-choice-primary { border: 1px solid var(--green); background: var(--green); color: white; }
+.cookie-choice-secondary { border: 1px solid var(--line); background: white; color: var(--ink); }
+.cookie-settings-link {
+  position: fixed;
+  z-index: 1000;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--green);
+  box-shadow: var(--shadow);
+  font-size: 12px;
+}
+@media (max-width: 650px) {
+  .cookie-choice-panel { flex-direction: column; align-items: stretch; padding: 17px; gap: 14px; }
+  .cookie-choice-actions { flex-direction: column; }
+}

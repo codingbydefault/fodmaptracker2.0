@@ -10,6 +10,8 @@ export function PublicFooter({ lang = "nl" }: { lang?: AppLanguage }) {
       <Link href={articlesPath(lang)}>{copy.articles}</Link>
       {" · "}
       <Link href="/registreren">{copy.signup}</Link>
+      {" · "}
+      <a href="/?cookie-settings=1">Cookievoorkeuren</a>
     </footer>
   );
 }

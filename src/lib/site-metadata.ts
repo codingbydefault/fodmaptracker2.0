@@ -1,15 +1,6 @@
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
-import { isArticleLanguage } from "@/lib/articles";
-import { languageInfo } from "@/lib/i18n";
-import { getRequestLanguage } from "@/lib/request-language";
-import { isHalloweenToday } from "@/lib/seasonal";
-import { VisitorTracker } from "@/components/VisitorTracker";
-import "./globals.css";
 
-export const metadata: Metadata = {
+export const siteMetadata: Metadata = {
   title: { default: "Fodmap-Tracker", template: "%s · Fodmap-Tracker" },
   description: "Houd voeding en symptomen overzichtelijk bij.",
   applicationName: "Fodmap-Tracker",
@@ -43,17 +34,9 @@ export const metadata: Metadata = {
     siteName: "Fodmap-Tracker",
     type: "website",
   },
-  twitter: {
-    card: "summary",
-    title: "Fodmap-Tracker",
-    description: "Houd voeding en symptomen overzichtelijk bij.",
-  },
-  
+  twitter: { card: "summary", title: "Fodmap-Tracker", description: "Houd voeding en symptomen overzichtelijk bij." },
 };
-export const viewport: Viewport = { themeColor: "#f7f8f5", colorScheme: "light", width: "device-width", initialScale: 1 };
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const pathname = (await headers()).get("x-pathname") ?? "";
-  const segment = pathname.split("/").filter(Boolean)[0] ?? "";
-  const language = isArticleLanguage(segment) ? segment : await getRequestLanguage();
-  return <html lang={languageInfo[language].locale}><body className={isHalloweenToday()?"halloween-theme":undefined}>{children}<VisitorTracker/><Analytics /><SpeedInsights /></body></html>;
-}
+
+export const siteViewport: Viewport = {
+  themeColor: "#f7f8f5", colorScheme: "light", width: "device-width", initialScale: 1,
+};

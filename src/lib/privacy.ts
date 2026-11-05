@@ -1,6 +1,6 @@
 import type { AppLanguage } from "@/lib/i18n";
 
-export const PRIVACY_NOTICE_VERSION = "2026-11-05.1";
+export const PRIVACY_NOTICE_VERSION = "2026-11-05.2";
 
 export const PRIVACY_CONTACT_EMAIL = "codedbydefault@gmail.com";
 
@@ -56,7 +56,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
           "Gezondheidsgegevens: maaltijden (naam, eetmoment, hoeveelheid, notities, tijdstip en een optionele foto), klachten (soort, eigen omschrijving, ernst van 0 tot 10, notities, tijdstip en een optionele koppeling aan een maaltijd), de dieetfase die je zelf start, herintroductietesten en je persoonlijke tolerantie-uitkomsten.",
           "Recepten en weekmenu: recepten die je zelf invoert, of je ze privé houdt of deelt met andere ingelogde gebruikers, favorieten, en de planning per dag en eetmoment.",
           "Etiketcontrole: als je uitdrukkelijk kiest voor ‘Product in de app bewaren’, delen we de barcode, het land van aankoop en de intern herkende ingrediënten in de productencatalogus zodat andere gebruikers het product niet opnieuw hoeven te fotograferen. De etiketfoto zelf blijft privé bij jouw account.",
-          "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Voor onze eigen bezoekersteller bewaren we in je browser een willekeurige anonieme code en per browsersessie een tijdelijke code. In de database staan daarvan alleen onomkeerbare hashes, eerste en laatste bezoek en het aantal sessies; geen IP-adres, browserkenmerken, e-mailadres of dagboekinhoud. Vercel Analytics en Speed Insights kunnen daarnaast anonieme gebruiks- en prestatiemetingen van pagina’s ontvangen.",
+          "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Alleen na afzonderlijke toestemming op de publieke startpagina gebruikt onze bezoekersteller een willekeurige, pseudonieme browsercode en per browsersessie een tijdelijke code. De database bewaart daarvan onomkeerbare hashes, eerste en laatste bezoek en sessieaantallen; geen dagboekinhoud. Na dezelfde toestemming kunnen Vercel Analytics, Speed Insights en Google Tag Manager statistieken over die startpagina ontvangen. Deze marketingtools worden niet geladen in de ingelogde patiëntomgeving.",
           "Vertaling: wanneer je Engels, Frans of Duits kiest, kunnen uitsluitend teksten van Fodmap-Tracker-recepten naar de vertaaldienst MyMemory worden gestuurd. Persoonlijke dagboekgegevens en recepten van gebruikers worden niet voor automatische vertaling verzonden. Vertalingen worden in je browser opgeslagen om herhaalde aanvragen te beperken.",
           "Professionele begeleiding: een diëtistprofiel bevat de professionele naam, een optioneel registratie- of kwaliteitsnummer en de verificatiestatus. Als patiënt kun je via een uitnodiging uitdrukkelijk toestemming geven om geselecteerde dagboek-, fase- en productgegevens met een geverifieerde diëtist te delen. De diëtist kan binnen die koppeling begeleidingsplannen en gedeelde notities toevoegen.",
         ],
@@ -70,6 +70,15 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
           "We gebruiken deze gegevens niet om reclameprofielen te maken en we verkopen ze niet. De app bevat in deze versie geen advertenties.",
           "Je kunt de toestemming intrekken door je account te verwijderen. Daarmee wissen we de gezondheidsgegevens die aan dat account hangen. Je kunt ook een verzoek sturen naar het contactadres.",
           "Een koppeling met een diëtist is vrijwillig en staat los van je algemene toestemming voor gezondheidsgegevens. Je kunt de koppeling op ieder moment intrekken via Begeleiding. Vanaf dat moment kan de diëtist je dossier niet meer openen. De diëtist kan je oorspronkelijke dagboekregistraties niet wijzigen.",
+        ],
+      },
+      {
+        id: "analytics",
+        heading: "Analyticscookies en toestemming",
+        paragraphs: [
+          "We activeren niet-noodzakelijke bezoekerstellingen en marketinganalytics op de publieke startpagina uitsluitend als je op ‘Analytics toestaan’ klikt. We vragen deze toestemming apart van je toestemming voor gezondheidsgegevens. We delen geen e-mailadressen, medische registraties of patiëntdossiers met Google Analytics of andere marketingtools.",
+          "Je kunt ook ‘Alleen noodzakelijk’ kiezen. Je keuze wordt lokaal op je apparaat onthouden. Via ‘Cookievoorkeuren’ op de startpagina kun je je keuze later veranderen. Een gewijzigde keuze geldt voor de volgende trackingactiviteit; reeds rechtmatig verzamelde gegevens worden daarmee niet automatisch gewist.",
+          "Bij toestemming kan Google Tag Manager een Google Analytics-tag op de startpagina laden, zodra die is geconfigureerd. Vercel Analytics en Speed Insights meten uitsluitend die startpagina. We beperken verzonden URL's tot het publieke pad, zonder zoekparameters. We gebruiken deze informatie niet voor individuele gezondheidsprofielen of gepersonaliseerde gezondheidsadvertenties.",
         ],
       },
       {

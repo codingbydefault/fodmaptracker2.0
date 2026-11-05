@@ -49,6 +49,8 @@ npm run dev
 - Stel dezelfde environment variables in met de productie-URL.
 - Voeg de productie callback URL toe aan Supabase Auth, inclusief `https://JOUW-DOMEIN/auth/callback?next=/wachtwoord-opnieuw` voor wachtwoordherstel.
 - Voer `npm test`, `npm run typecheck` en `npm run build` uit in CI voordat je deployt.
+- Optionele analytics: zet `NEXT_PUBLIC_GTM_ID` alleen op de exacte Google Tag Manager-container-ID (bijv. `GTM-ABCDEFG`). Zonder deze variabele wordt Google Tag Manager niet geladen.
+- Controleer vóór inschakeling van GTM dat de container alleen een goedgekeurde Google-tag voor de publieke startpagina bevat, dat automatische paginaweergaven en enhanced measurement geen privé-URL's kunnen verzamelen, en dat de analytics-toestemming werkt.
 - Configureer Supabase-back-ups, e-mailbevestiging, rate limiting en monitoring.
 - Zet nooit een Supabase `service_role`/secret key in `NEXT_PUBLIC_*` of clientcode.
 - Accountverwijdering gebruikt de databasefunctie `delete_own_account()` en heeft geen extra environment variable. Voeg geen service-role key toe voor deze functie.
@@ -56,6 +58,16 @@ npm run dev
 ## Privacy (concept)
 
 De pagina’s `/privacy` en `/account-verwijderen` zijn een concept voor juridische controle, nog geen definitieve privacyverklaring.
+
+### Marketinganalytics met expliciete toestemming
+
+- De publieke startpagina (`/`) gebruikt een aparte Next.js root layout. De inlog-, registratie-, informatie- en patiëntpagina's gebruiken andere root layouts. Navigatie tussen die layouts geeft een volledige paginalaadbeurt, waardoor marketingtags niet actief blijven in de patiëntomgeving.
+- Bij het eerste bezoek staat analytics standaard **uit**. De bezoeker kiest tussen ‘Alleen noodzakelijk’ en ‘Analytics toestaan’. De keuze wordt lokaal bewaard en kan op de startpagina via ‘Cookievoorkeuren’ worden aangepast.
+- `VisitorTracker`, Vercel Analytics, Speed Insights en (indien ingesteld) GTM worden alleen op de startpagina geladen na toestemming. Geen extra GTM-`noscript`-iframe: dat zou de toestemmingscontrole kunnen omzeilen.
+- De URL wordt vóór het activeren van tracking ontdaan van zoekparameters en fragmenten; Vercel-events krijgen alleen het publieke pad `/` door.
+- Configureer binnen GTM de **Google-tag** met de juiste GA4-meet-ID (`G-...`) en alleen een trigger voor een toegestane marketingpagina. Schakel automatische geschiedenis-/SPA-paginaweergaven en andere enhanced-measurementgebeurtenissen uit waar die privé-URL's kunnen bereiken. Publiceer de GTM-container pas na review.
+- Test in een Vercel-preview met Tag Assistant en de browsernetwerktab: bij weigering **geen** requests naar Google Tag Manager/Analytics of Vercel Analytics; na toestemming uitsluitend een geschoonde bezoekmeting op `/`; op `/login`, `/registreren`, `/dashboard`, `/klachten`, `/voeding` en andere patiëntpaden **geen** marketingtags.
+- De privacytekst blijft een concept dat vóór productie juridisch en technisch moet worden gecontroleerd, met aandacht voor bewaartermijnen, verwerkers en de AVG.
 
 - Contactadres: codedbydefault@gmail.com. De verwerkingsverantwoordelijke is gevestigd in Hulst, Zeeland (Nederland).
 - Vul de hostingregio van Supabase en Vercel in de privacyverklaring in. Die regio staat niet in deze repository.

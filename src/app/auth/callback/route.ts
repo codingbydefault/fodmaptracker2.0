@@ -8,7 +8,17 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(safeNextPath(searchParams.get("next")), origin));
+    if (!error) {
+      const requested = searchParams.get("next");
+      if (!requested) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase.from("profiles").select("account_type").eq("id", user.id).maybeSingle();
+          return NextResponse.redirect(new URL(profile?.account_type === "dietitian" ? "/professional" : "/dashboard", origin));
+        }
+      }
+      return NextResponse.redirect(new URL(safeNextPath(requested), origin));
+    }
   }
   return NextResponse.redirect(new URL("/login?error=auth", origin));
 }

@@ -18,6 +18,10 @@ export type AccountExport = {
   recipe_likes: AccountRow[];
   product_catalog_contributions: AccountRow[];
   product_scan_evidence: AccountRow[];
+  dietitian_profile: AccountRow | null;
+  care_links: AccountRow[];
+  care_plans: AccountRow[];
+  care_notes: AccountRow[];
   photos: { bucket: string; path: string }[];
 };
 
@@ -41,7 +45,7 @@ export type AccountDataClient = {
 const photoBuckets = ["meal-photos", "profile-photos", "label-photos"] as const;
 
 const selects = {
-  profiles: "id,display_name,username,avatar_path,preferred_language,timezone,health_data_consent_at,privacy_notice_version,created_at,updated_at",
+  profiles: "id,display_name,username,avatar_path,preferred_language,account_type,timezone,health_data_consent_at,privacy_notice_version,created_at,updated_at",
   food_entries: "id,user_id,food_name,meal_type,portion_description,notes,photo_path,eaten_at,created_at",
   symptom_entries: "id,user_id,food_entry_id,symptom_type,custom_symptom,severity,notes,experienced_at,created_at",
   recipes: "id,user_id,title,description,servings,preparation_minutes,ingredients,instructions,is_public,created_at,updated_at",
@@ -53,9 +57,15 @@ const selects = {
   recipe_likes: "user_id,curated_recipe_id,created_at",
   product_catalog: "id,barcode,country_code,ingredients_text,source,created_by,created_at,updated_at",
   product_scan_evidence: "id,product_id,user_id,photo_path,created_at",
+  dietitian_profiles: "user_id,professional_name,registration_number,verification_status,verified_at,created_at,updated_at",
+  patient_dietitian_links: "id,dietitian_id,patient_id,status,share_food,share_symptoms,share_phases,share_products,invited_at,accepted_at,revoked_at",
+  care_plans: "id,link_id,dietitian_id,patient_id,title,goals,status,created_at,updated_at",
+  care_notes: "id,link_id,dietitian_id,patient_id,note,shared_with_patient,created_at",
 } as const;
 
-export function onlyOwnedRows(rows: AccountRow[] | null | undefined, userId: string, field: "user_id" | "id" | "created_by"): AccountRow[] {
+type OwnershipField = "user_id" | "id" | "created_by" | "patient_id" | "dietitian_id";
+
+export function onlyOwnedRows(rows: AccountRow[] | null | undefined, userId: string, field: OwnershipField): AccountRow[] {
   return (rows ?? []).filter(row => row[field] === userId);
 }
 
@@ -64,7 +74,7 @@ function asRows(data: QueryResult["data"]): AccountRow[] {
   return Array.isArray(data) ? data : [data];
 }
 
-async function ownedTable(supabase: AccountDataClient, table: keyof typeof selects, userId: string, field: "user_id" | "id" | "created_by"): Promise<AccountRow[]> {
+async function ownedTable(supabase: AccountDataClient, table: keyof typeof selects, userId: string, field: OwnershipField): Promise<AccountRow[]> {
   const { data, error } = await supabase.from(table).select(selects[table]).eq(field, userId);
   if (error) throw new Error(error.message);
   return onlyOwnedRows(asRows(data), userId, field);
@@ -100,7 +110,7 @@ export async function removeOwnStorage(supabase: AccountDataClient, userId: stri
 }
 
 export async function loadOwnAccountData(supabase: AccountDataClient, user: { id: string; email?: string | null }, exportedAt = new Date().toISOString()): Promise<AccountExport> {
-  const [profileRows, foodEntries, symptomEntries, recipes, weeklyMenu, dietPhases, challenges, challengeLogs, toleranceProfile, likes, catalogContributions, scanEvidence, photos] = await Promise.all([
+  const [profileRows, foodEntries, symptomEntries, recipes, weeklyMenu, dietPhases, challenges, challengeLogs, toleranceProfile, likes, catalogContributions, scanEvidence, dietitianProfile, patientLinks, dietitianLinks, patientPlans, dietitianPlans, patientNotes, dietitianNotes, photos] = await Promise.all([
     ownedTable(supabase, "profiles", user.id, "id"),
     ownedTable(supabase, "food_entries", user.id, "user_id"),
     ownedTable(supabase, "symptom_entries", user.id, "user_id"),
@@ -113,8 +123,17 @@ export async function loadOwnAccountData(supabase: AccountDataClient, user: { id
     ownedTable(supabase, "recipe_likes", user.id, "user_id"),
     ownedTable(supabase, "product_catalog", user.id, "created_by"),
     ownedTable(supabase, "product_scan_evidence", user.id, "user_id"),
+    ownedTable(supabase, "dietitian_profiles", user.id, "user_id"),
+    ownedTable(supabase, "patient_dietitian_links", user.id, "patient_id"),
+    ownedTable(supabase, "patient_dietitian_links", user.id, "dietitian_id"),
+    ownedTable(supabase, "care_plans", user.id, "patient_id"),
+    ownedTable(supabase, "care_plans", user.id, "dietitian_id"),
+    ownedTable(supabase, "care_notes", user.id, "patient_id"),
+    ownedTable(supabase, "care_notes", user.id, "dietitian_id"),
     listOwnPhotoPaths(supabase, user.id),
   ]);
+
+  const uniqueRows = (rows: AccountRow[]) => [...new Map(rows.map(row => [String(row.id), row])).values()];
 
   return {
     exported_at: exportedAt,
@@ -132,6 +151,10 @@ export async function loadOwnAccountData(supabase: AccountDataClient, user: { id
     recipe_likes: likes,
     product_catalog_contributions: catalogContributions,
     product_scan_evidence: scanEvidence,
+    dietitian_profile: dietitianProfile[0] ?? null,
+    care_links: uniqueRows([...patientLinks, ...dietitianLinks]),
+    care_plans: uniqueRows([...patientPlans, ...dietitianPlans]),
+    care_notes: uniqueRows([...patientNotes, ...dietitianNotes]),
     photos,
   };
 }

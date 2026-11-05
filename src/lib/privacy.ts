@@ -1,6 +1,6 @@
 import type { AppLanguage } from "@/lib/i18n";
 
-export const PRIVACY_NOTICE_VERSION = "2026-11-03.2";
+export const PRIVACY_NOTICE_VERSION = "2026-11-05.1";
 
 export const PRIVACY_CONTACT_EMAIL = "codedbydefault@gmail.com";
 
@@ -58,6 +58,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
           "Etiketcontrole: als je uitdrukkelijk kiest voor ‘Product in de app bewaren’, delen we de barcode, het land van aankoop en de intern herkende ingrediënten in de productencatalogus zodat andere gebruikers het product niet opnieuw hoeven te fotograferen. De etiketfoto zelf blijft privé bij jouw account.",
           "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Voor onze eigen bezoekersteller bewaren we in je browser een willekeurige anonieme code en per browsersessie een tijdelijke code. In de database staan daarvan alleen onomkeerbare hashes, eerste en laatste bezoek en het aantal sessies; geen IP-adres, browserkenmerken, e-mailadres of dagboekinhoud. Vercel Analytics en Speed Insights kunnen daarnaast anonieme gebruiks- en prestatiemetingen van pagina’s ontvangen.",
           "Vertaling: wanneer je Engels, Frans of Duits kiest, kunnen uitsluitend teksten van Fodmap-Tracker-recepten naar de vertaaldienst MyMemory worden gestuurd. Persoonlijke dagboekgegevens en recepten van gebruikers worden niet voor automatische vertaling verzonden. Vertalingen worden in je browser opgeslagen om herhaalde aanvragen te beperken.",
+          "Professionele begeleiding: een diëtistprofiel bevat de professionele naam, een optioneel registratie- of kwaliteitsnummer en de verificatiestatus. Als patiënt kun je via een uitnodiging uitdrukkelijk toestemming geven om geselecteerde dagboek-, fase- en productgegevens met een geverifieerde diëtist te delen. De diëtist kan binnen die koppeling begeleidingsplannen en gedeelde notities toevoegen.",
         ],
       },
       {
@@ -68,6 +69,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
           "Maaltijden, klachten, maaltijdfoto’s en de dieetfase kunnen gegevens over je gezondheid zijn. Die verwerken we alleen met je uitdrukkelijke toestemming (artikel 9 lid 2 onder a AVG). Het keuzevak bij het aanmaken van een account staat standaard uit. Zonder dat vak maken we geen account aan.",
           "We gebruiken deze gegevens niet om reclameprofielen te maken en we verkopen ze niet. De app bevat in deze versie geen advertenties.",
           "Je kunt de toestemming intrekken door je account te verwijderen. Daarmee wissen we de gezondheidsgegevens die aan dat account hangen. Je kunt ook een verzoek sturen naar het contactadres.",
+          "Een koppeling met een diëtist is vrijwillig en staat los van je algemene toestemming voor gezondheidsgegevens. Je kunt de koppeling op ieder moment intrekken via Begeleiding. Vanaf dat moment kan de diëtist je dossier niet meer openen. De diëtist kan je oorspronkelijke dagboekregistraties niet wijzigen.",
         ],
       },
       {
@@ -95,6 +97,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
           "Je kunt maaltijden, klachten, recepten, het weekmenu en je profiel in de app zelf corrigeren of wissen. Herintroductietesten kun je stoppen; de testgeschiedenis en tolerantie-uitkomsten staan ook in je volledige JSON-export.",
           "Je kunt het hele account in de app verwijderen (Profiel, typ VERWIJDER). Zonder in te loggen kun je een verwijderverzoek doen via de pagina Account verwijderen.",
           "Je kunt een klacht indienen bij de Autoriteit Persoonsgegevens.",
+          "Bij professionele begeleiding kun je zien met welke diëtist je bent gekoppeld, welke adviezen met je zijn gedeeld en de toegang zelf beëindigen. Dossiertoegang door de diëtist wordt gelogd.",
         ],
       },
     ],

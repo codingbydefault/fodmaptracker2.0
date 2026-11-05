@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/data";
 import { AppShell } from "@/components/AppShell";
 import { SubmitButton } from "@/components/SubmitButton";
 import { resetVisitorStats } from "@/lib/admin-actions";
+import { verifyDietitian } from "@/lib/professional-actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Beheer en stabiliteit" };
@@ -103,6 +104,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   const stats = data as AdminStats;
   const monitoring = monitoringData as MonitoringStats | null;
+  const { data: pendingDietitians } = await supabase.from("dietitian_profiles").select("user_id,professional_name,registration_number,created_at").eq("verification_status","pending").order("created_at");
   const profileMismatch = stats.auth_users_without_profile > 0;
 
   return (
@@ -180,6 +182,13 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               </div>
             ))
           )}
+        </div>
+      </section>
+
+      <section style={{ marginTop: 18 }}>
+        <h2 className="section-title" style={{ marginBottom: 10 }}>Diëtistenverificatie</h2>
+        <div className="card">
+          {!pendingDietitians?.length ? <div className="empty">Geen professionele profielen wachten op controle.</div> : pendingDietitians.map(item => <div className="entry" key={item.user_id}><div><div className="entry-title">{item.professional_name || "Naam nog niet ingevuld"}</div><div className="subtle">Registratie: {item.registration_number || "niet ingevuld"}</div></div><div style={{display:"flex",gap:8}}><form action={verifyDietitian}><input type="hidden" name="user_id" value={item.user_id}/><input type="hidden" name="decision" value="approve"/><SubmitButton className="btn">Goedkeuren</SubmitButton></form><form action={verifyDietitian}><input type="hidden" name="user_id" value={item.user_id}/><input type="hidden" name="decision" value="reject"/><SubmitButton className="btn btn-secondary" confirmMessage="Dit professionele profiel afwijzen?">Afwijzen</SubmitButton></form></div></div>)}
         </div>
       </section>
 

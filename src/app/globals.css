@@ -835,6 +835,17 @@ button {
 .phase-step-card ul { margin:4px 0 18px; padding-left:20px; color:var(--muted); font-size:13px; line-height:1.55; }
 .phase-step-card .btn { margin-top:auto; text-align:center; }
 .phase-start-form { display:grid; gap:12px; margin-top:auto; }
+.account-type-picker { display:grid; gap:10px; margin:0; padding:0; border:0; }
+.account-type-picker legend { margin-bottom:8px; font-weight:750; }
+.account-type-picker label { display:flex; gap:11px; align-items:flex-start; padding:13px; border:1px solid var(--line); border-radius:14px; background:#fff; cursor:pointer; }
+.account-type-picker label:has(input:checked) { border-color:var(--green); box-shadow:0 0 0 3px rgba(70,120,84,.1); }
+.account-type-picker input { margin-top:4px; }
+.account-type-picker span,.account-type-picker small { display:block; }
+.account-type-picker small { margin-top:3px; color:var(--muted); line-height:1.4; }
+.professional-nav { display:flex; gap:16px; margin-left:auto; }
+.professional-nav a { color:var(--green-deep); font-weight:750; }
+.professional-client-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+@media(max-width:760px){.professional-nav{order:3;width:100%;justify-content:center}.professional-client-grid{grid-template-columns:1fr}}
 @media (max-width: 900px) { .phase-journey-grid { grid-template-columns:1fr; } }
 @media (max-width: 680px) {
   .phase-guide-card { grid-template-columns:1fr; gap:16px; padding:17px; }

@@ -70,6 +70,7 @@ export interface Profile {
   avatar_path: string | null;
   avatar_url?: string | null;
   preferred_language: "nl" | "fr" | "de" | "en";
+  account_type: "patient" | "dietitian";
   timezone: string;
   avoided_fodmap_groups: FodmapGroup[];
   health_data_consent_at: string | null;

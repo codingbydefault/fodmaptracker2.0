@@ -216,6 +216,14 @@ export default async function ProfilePage({
           <Link className="btn btn-secondary" href="/fases">{workflowCopy[language].phase.view} →</Link>
         </section>
       </div>
+      {profile.account_type === "patient" && (
+        <section className="card" style={{ marginTop: 18 }}>
+          <div className="eyebrow">Privacy en begeleiding</div>
+          <h2 className="section-title">Mijn gekoppelde diëtist</h2>
+          <p className="subtle">Bekijk gedeelde plannen en bepaal zelf welke diëtist toegang heeft tot je dossier.</p>
+          <Link className="btn btn-secondary" href="/begeleiding">Begeleiding en toegang beheren →</Link>
+        </section>
+      )}
       <section id="recepten" style={{ marginTop: 22 }}>
         <div className="section-heading">
           <div>

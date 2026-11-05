@@ -49,7 +49,7 @@ npm run dev
 - Stel dezelfde environment variables in met de productie-URL.
 - Voeg de productie callback URL toe aan Supabase Auth, inclusief `https://JOUW-DOMEIN/auth/callback?next=/wachtwoord-opnieuw` voor wachtwoordherstel.
 - Voer `npm test`, `npm run typecheck` en `npm run build` uit in CI voordat je deployt.
-- Optionele analytics: zet `NEXT_PUBLIC_GTM_ID` alleen op de exacte Google Tag Manager-container-ID (bijv. `GTM-ABCDEFG`). Zonder deze variabele wordt Google Tag Manager niet geladen.
+- Analytics gebruikt standaard productiecontainer `GTM-T8378T3L`. `NEXT_PUBLIC_GTM_ID` kan deze openbare container-ID per deployment overschrijven en accepteert alleen het formaat `GTM-...`.
 - Controleer vóór inschakeling van GTM dat de container alleen een goedgekeurde Google-tag voor de publieke startpagina bevat, dat automatische paginaweergaven en enhanced measurement geen privé-URL's kunnen verzamelen, en dat de analytics-toestemming werkt.
 - Configureer Supabase-back-ups, e-mailbevestiging, rate limiting en monitoring.
 - Zet nooit een Supabase `service_role`/secret key in `NEXT_PUBLIC_*` of clientcode.

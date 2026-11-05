@@ -12,7 +12,10 @@ import {
   type AnalyticsConsent,
 } from "@/lib/marketing-consent";
 
-const gtmId = validGtmContainerId(process.env.NEXT_PUBLIC_GTM_ID);
+// A GTM container ID is public by design. Keep the production container as a
+// safe fallback so analytics does not silently disappear when a deployment
+// environment is recreated; an environment variable can still override it.
+const gtmId = validGtmContainerId(process.env.NEXT_PUBLIC_GTM_ID ?? "GTM-T8378T3L");
 
 function clearVisitorIdentifiers() {
   try { localStorage.removeItem("fodmap_tracker_visitor"); } catch { /* Storage may be blocked. */ }

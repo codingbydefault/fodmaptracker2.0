@@ -1,6 +1,6 @@
 # Technische prioriteiten — actuele status
 
-Bijgewerkt: 5 november 2026
+Bijgewerkt: 6 november 2026
 
 Dit overzicht verwerkt de aangeleverde prioriteitenlijst. `Gereed` betekent technisch aantoonbaar aanwezig; het betekent niet automatisch dat juridische beoordeling of een professionele penetratietest is afgerond.
 
@@ -21,11 +21,12 @@ Dit overzicht verwerkt de aangeleverde prioriteitenlijst. `Gereed` betekent tech
 - Dependency-audit en secretscan blokkeren releases.
 - Open: externe penetratietest en distributed rate limiting/WAF. De in-memory limiter werkt per Vercel-instantie en is geen volledige DDoS-bescherming.
 
-### 3. Back-upstrategie — geblokkeerd
+### 3. Back-upstrategie — externe go-liveblokkade
 
 - Runbook en restoreprocedure zijn gereed.
-- Supabase-project meldt `No backups` op het Free-plan.
-- Open: geschikt plan/back-upmechanisme activeren en een geïsoleerde restore-test uitvoeren.
+- Supabase-project meldt `No backups` op het Free-plan. Supabase levert automatische dagelijkse back-ups pas vanaf Pro; een Free-project vereist handmatige, beveiligde off-site exports.
+- Voor gezondheidsgegevens worden databasekopieën niet als onbeveiligd CI- of GitHub-artifact opgeslagen.
+- Open: Pro of hoger activeren, eerste automatische back-up vaststellen en een geïsoleerde restore-test uitvoeren. Storage-objecten vereisen daarnaast een afzonderlijke herstelstrategie.
 
 ## Hoog
 
@@ -40,14 +41,16 @@ Dit overzicht verwerkt de aangeleverde prioriteitenlijst. `Gereed` betekent tech
 - Adminmonitoring toont recente technische gebeurtenissen zonder klachtinhoud.
 - Open: externe alerting/on-callkanaal voor SEV-1/SEV-2.
 
-### 6. Testcoverage — gedeeltelijk
+### 6. Testcoverage — basis aantoonbaar
 
 - 78 applicatietests en 26 database-autorisatietests.
-- Open: browser-E2E, mobiele tests en expliciete coverage-drempel.
+- CI meet alle modules in `src/lib` en blokkeert regressie onder de vastgelegde startdrempels (45% statements, 40% branches, 55% functies en 55% regels).
+- Open: drempels stapsgewijs verhogen en browser-E2E/mobiele tests toevoegen.
 
 ### 7. CI/CD-review — gereed als basis
 
-- Iedere push/PR controleert secrets, security posture, dependencies, tests, typecheck, build en een verse Supabase-stack.
+- Iedere push/PR controleert secrets, security posture, dependencies, coverage, typecheck, build en een verse Supabase-stack.
+- GitHub Actions draaien op de actuele Node 24-compatibele `checkout@v7` en `setup-node@v7`.
 - Open: branch protection en vereiste deployment checks in GitHub/Vercel bevestigen.
 
 ### 8. Securityheaders — gedeeltelijk

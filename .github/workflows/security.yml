@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Supabase CLI
         uses: supabase/setup-cli@v1
@@ -33,10 +33,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -53,8 +53,8 @@ jobs:
       - name: Audit dependencies
         run: npm audit --audit-level=high
 
-      - name: Test
-        run: npm test
+      - name: Test with coverage thresholds
+        run: npm run test:coverage
 
       - name: Type-check
         run: npm run typecheck

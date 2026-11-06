@@ -1,11 +1,21 @@
 # Back-up- en restore-runbook
 
-Status: procedure gereed, productie-uitvoering nog te bewijzen
-Laatst bijgewerkt: 5 november 2026
+Status: procedure gereed, productie-uitvoering geblokkeerd door Free-plan
+Laatst bijgewerkt: 6 november 2026
 
 ## Doelstellingen
 
 RPO en RTO moeten vóór de praktijktest door de producteigenaar worden vastgesteld. Voorstel voor de testfase: maximaal 24 uur dataverlies (RPO) en herstel binnen 8 uur (RTO). Dit is pas een toezegging nadat het gekozen Supabase-plan dit aantoonbaar ondersteunt.
+
+## Activering vóór echte patiëntgegevens
+
+1. Upgrade het productieproject naar minimaal Supabase Pro; automatische dagelijkse databaseback-ups zijn niet beschikbaar op Free.
+2. Controleer in **Database → Backups** dat een herstelpunt zichtbaar is en noteer retentie en tijdstip.
+3. Leg vast wie een restore mag starten en vereis tweepersoonscontrole voor productieherstel.
+4. Plan de eerste restoretest in een afzonderlijk Supabase-project met gepseudonimiseerde gegevens.
+5. Maak voor Storage-bestanden een afzonderlijke export-/herstelprocedure; een databaseback-up bevat alleen Storage-metadata, niet de bestanden zelf.
+
+Een onbeveiligde productiedump in GitHub Actions, buildlogs of CI-artifacts is voor deze applicatie niet toegestaan.
 
 ## Maandelijkse controle
 

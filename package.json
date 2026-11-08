@@ -14,7 +14,7 @@
     "security:posture": "node scripts/security-posture-check.mjs"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.7.0",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.80.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",

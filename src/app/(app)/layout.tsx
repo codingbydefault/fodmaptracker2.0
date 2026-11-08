@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageVisitCollector } from "@/components/PageVisitCollector";
 import { requireUser } from "@/lib/data";
 import { getDocumentLocale } from "@/lib/document-language";
 import { isHalloweenToday } from "@/lib/seasonal";
@@ -14,7 +15,10 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   const locale = await getDocumentLocale();
   return (
     <html lang={locale}>
-      <body className={isHalloweenToday() ? "halloween-theme" : undefined}>{children}</body>
+      <body className={isHalloweenToday() ? "halloween-theme" : undefined}>
+        <PageVisitCollector vercelEnv={process.env.VERCEL_ENV} />
+        {children}
+      </body>
     </html>
   );
 }

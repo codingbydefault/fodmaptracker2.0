@@ -91,8 +91,10 @@ export function MarketingConsent() {
             <p>
               Noodzakelijke opslag houdt de website werkend. Alleen als je toestemming geeft,
               meten we bezoeken aan deze publieke startpagina met onze bezoekersteller,
-              Vercel en Google Tag Manager. We meten geen patiëntpagina’s of dagboekinhoud.
-              Je kunt je keuze later aanpassen. Lees onze <a href="/privacy">privacyverklaring</a>.
+              Vercel en Google Tag Manager. We meten geen dagboekinhoud.
+              Een aparte cookieloze paginatelling, zonder cookie of browsercode, kan
+              paginaweergaven melden; die staat als concept in de <a href="/privacy">privacyverklaring</a>.
+              Je kunt je keuze later aanpassen.
             </p>
           </div>
           <div className="cookie-choice-actions">

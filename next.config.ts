@@ -12,7 +12,7 @@ const contentSecurityPolicyReportOnly = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://*.google-analytics.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://*.google-analytics.com https://www.codedbydefault.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
 ].join("; ");

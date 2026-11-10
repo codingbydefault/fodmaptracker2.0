@@ -40,7 +40,7 @@ const articleSchema = z.object({
   reading_time_minutes: z.number().int().positive(),
   summary: z.string().min(1),
   tags: z.array(z.string().min(1)),
-  category: z.enum(["recept", "gids"]),
+  category: z.enum(["recept", "gids", "nieuws"]),
   image: z.string().min(1).optional(),
   image_alt: z.string().min(1).optional(),
   servings: z.number().int().positive().optional(),
@@ -67,6 +67,10 @@ const perPortionHeading = /^(#{2,6})\s+.*(?:per portie|per serving|par portion|p
 const thresholdKey = /low_fodmap_limit|fodmap_limit|serving_limit|threshold_g|numeric_limit|\blimit\b\s*[:=]\s*\d/i;
 const quantityThenLimit = /(?:tot|up to|jusqu['’]?à|bis|maximaal|maximum|max\.?)\s+\d+(?:[.,]\d+)?\s*(?:g|ml|el|tl|tbsp|tsp)\b[^.\n]{0,80}\b(?:monash|fodmap|low)\b/i;
 const limitThenQuantity = /\b(?:monash|low(?:\s|-)?fodmap|grens|limiet|limite|grenze)\b[^.\n]{0,80}\d+(?:[.,]\d+)?\s*(?:g|ml|el|tl|tbsp|tsp)\b/i;
+
+export function isNewsCategory(category: string) {
+  return category === "gids" || category === "nieuws";
+}
 
 export function isArticleLanguage(value: string): value is AppLanguage {
   return (languages as readonly string[]).includes(value);

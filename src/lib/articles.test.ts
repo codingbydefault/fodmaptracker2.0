@@ -1,16 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { containsFodmapThreshold, getArticles, ingredientLine, isThresholdSentence, publicFodmapItems, renderArticleText, sanitizeArticleBody, type Article } from "@/lib/articles";
+import { containsFodmapThreshold, getArticles, ingredientLine, isNewsCategory, isThresholdSentence, publicFodmapItems, renderArticleText, sanitizeArticleBody, type Article } from "@/lib/articles";
 
 describe("published articles", () => {
   const articles = getArticles();
 
-  it("loads 11 articles in nl, fr, de and en", () => {
-    expect(new Set(articles.map(article => article.slug)).size).toBe(11);
-    for (const lang of ["nl", "fr", "de", "en"] as const) {
+  it("loads guides in every language and Dutch news articles", () => {
+    expect(new Set(articles.map(article => article.slug)).size).toBe(17);
+    expect(articles.filter(article => article.lang === "nl")).toHaveLength(17);
+    for (const lang of ["fr", "de", "en"] as const) {
       expect(articles.filter(article => article.lang === lang)).toHaveLength(11);
     }
     expect(articles.filter(article => article.category === "recept")).toHaveLength(24);
     expect(articles.filter(article => article.category === "gids")).toHaveLength(20);
+    const news = articles.filter(article => article.category === "nieuws");
+    expect(news).toHaveLength(6);
+    expect(news.every(article => article.lang === "nl")).toBe(true);
+    expect(isNewsCategory("gids")).toBe(true);
+    expect(isNewsCategory("nieuws")).toBe(true);
+    expect(isNewsCategory("recept")).toBe(false);
+    for (const article of news) {
+      expect(sanitizeArticleBody(article.body)).toBe(article.body.trim());
+      expect(sanitizeArticleBody(article.summary)).toBe(article.summary);
+    }
   });
 
   it("shows a FODMAP status label and no number for each ingredient", () => {

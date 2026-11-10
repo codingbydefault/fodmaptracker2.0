@@ -53,7 +53,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
         paragraphs: [
           "Account: e-mailadres en een wachtwoord. Het wachtwoord wordt door Supabase Auth opgeslagen als een hash. Wij kunnen het wachtwoord niet teruglezen.",
           "Profiel: naam, gebruikersnaam, profielfoto, voorkeurstaal, tijdzone, het tijdstip van je toestemming voor gezondheidsgegevens en de versie van deze verklaring die je hebt aanvaard.",
-          "Gezondheidsgegevens: maaltijden (naam, eetmoment, hoeveelheid, notities, tijdstip en een optionele foto), klachten (soort, eigen omschrijving, ernst van 0 tot 10, notities, tijdstip en een optionele koppeling aan een maaltijd), de dieetfase die je zelf start, herintroductietesten en je persoonlijke tolerantie-uitkomsten.",
+          "Gezondheidsgegevens: maaltijden (naam, eetmoment, hoeveelheid, notities, tijdstip en een optionele foto), klachten (soort, eigen omschrijving, ernst van 0 tot 10, notities, tijdstip en een optionele koppeling aan een maaltijd), de dieetfase die je zelf start, herintroductietesten en wat je zelf in Mijn testresultaten hebt ingevoerd.",
           "Recepten en weekmenu: recepten die je zelf invoert, of je ze privé houdt of deelt met andere ingelogde gebruikers, favorieten, en de planning per dag en eetmoment.",
           "Etiketcontrole: als je uitdrukkelijk kiest voor ‘Product in de app bewaren’, delen we de barcode, het land van aankoop en de intern herkende ingrediënten in de productencatalogus zodat andere gebruikers het product niet opnieuw hoeven te fotograferen. De etiketfoto zelf blijft privé bij jouw account.",
           "Technische gegevens: sessiecookies die nodig zijn om je ingelogd te houden. Alleen na afzonderlijke toestemming op de publieke startpagina gebruikt onze bezoekersteller een willekeurige, pseudonieme browsercode en per browsersessie een tijdelijke code. De database bewaart daarvan onomkeerbare hashes, eerste en laatste bezoek en sessieaantallen; geen dagboekinhoud. Na dezelfde toestemming kunnen Vercel Analytics, Speed Insights en Google Tag Manager statistieken over die startpagina ontvangen. Deze marketingtools worden niet geladen in de ingelogde patiëntomgeving.",
@@ -103,7 +103,7 @@ export const privacyNotices: Partial<Record<AppLanguage, PrivacyNotice>> = {
         heading: "Jouw rechten",
         paragraphs: [
           "Je kunt je gegevens inzien en downloaden via Profiel: een JSON-bestand met je accountgegevens, en CSV-bestanden voor maaltijden en klachten.",
-          "Je kunt maaltijden, klachten, recepten, het weekmenu en je profiel in de app zelf corrigeren of wissen. Herintroductietesten kun je stoppen; de testgeschiedenis en tolerantie-uitkomsten staan ook in je volledige JSON-export.",
+          "Je kunt maaltijden, klachten, recepten, het weekmenu en je profiel in de app zelf corrigeren of wissen. Herintroductietesten kun je stoppen; de testgeschiedenis en wat je in Mijn testresultaten hebt ingevoerd staan ook in je volledige JSON-export.",
           "Je kunt het hele account in de app verwijderen (Profiel, typ VERWIJDER). Zonder in te loggen kun je een verwijderverzoek doen via de pagina Account verwijderen.",
           "Je kunt een klacht indienen bij de Autoriteit Persoonsgegevens.",
           "Bij professionele begeleiding kun je zien met welke diëtist je bent gekoppeld, welke adviezen met je zijn gedeeld en de toegang zelf beëindigen. Dossiertoegang door de diëtist wordt gelogd.",

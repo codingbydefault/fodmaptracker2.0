@@ -4,17 +4,18 @@ import { containsFodmapThreshold, getArticles, ingredientLine, isNewsCategory, i
 describe("published articles", () => {
   const articles = getArticles();
 
-  it("loads guides in every language and Dutch news articles", () => {
+  it("loads guides and news in every language", () => {
     expect(new Set(articles.map(article => article.slug)).size).toBe(17);
-    expect(articles.filter(article => article.lang === "nl")).toHaveLength(17);
-    for (const lang of ["fr", "de", "en"] as const) {
-      expect(articles.filter(article => article.lang === lang)).toHaveLength(11);
+    for (const lang of ["nl", "fr", "de", "en"] as const) {
+      expect(articles.filter(article => article.lang === lang)).toHaveLength(17);
     }
     expect(articles.filter(article => article.category === "recept")).toHaveLength(24);
     expect(articles.filter(article => article.category === "gids")).toHaveLength(20);
     const news = articles.filter(article => article.category === "nieuws");
-    expect(news).toHaveLength(6);
-    expect(news.every(article => article.lang === "nl")).toBe(true);
+    expect(news).toHaveLength(24);
+    for (const lang of ["nl", "fr", "de", "en"] as const) {
+      expect(news.filter(article => article.lang === lang)).toHaveLength(6);
+    }
     expect(isNewsCategory("gids")).toBe(true);
     expect(isNewsCategory("nieuws")).toBe(true);
     expect(isNewsCategory("recept")).toBe(false);

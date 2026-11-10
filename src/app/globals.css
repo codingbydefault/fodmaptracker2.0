@@ -1908,3 +1908,11 @@ button:disabled {
   .cookie-choice-panel { flex-direction: column; align-items: stretch; padding: 17px; gap: 14px; }
   .cookie-choice-actions { flex-direction: column; }
 }
+.test-results-note { max-width: 720px; }
+.test-results-print .no-print { margin-top: 12px; }
+@media print {
+  body * { visibility: hidden; }
+  .test-results-print, .test-results-print * { visibility: visible; }
+  .test-results-print { position: absolute; left: 0; top: 0; width: 100%; }
+  .test-results-print .no-print { display: none !important; }
+}

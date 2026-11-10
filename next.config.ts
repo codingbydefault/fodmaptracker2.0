@@ -38,6 +38,9 @@ const nextConfig: NextConfig = {
     },
   },
   turbopack: { root: process.cwd() },
+  async redirects() {
+    return [{ source: "/nieuws", destination: "/nl/artikels", permanent: false }];
+  },
   async headers() {
     return [
       {

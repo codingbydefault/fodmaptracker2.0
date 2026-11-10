@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Brand } from "@/components/Brand";
 import { PublicFooter } from "@/components/PublicFooter";
 import { articleCopy } from "@/lib/article-copy";
-import { articlePath, articlesIn, articlesPath, articleUrl, hreflangMap, isArticleLanguage } from "@/lib/articles";
+import { articlePath, articlesIn, articlesPath, articleUrl, hreflangMap, isArticleLanguage, isNewsCategory } from "@/lib/articles";
 import { languageInfo, languages, type AppLanguage } from "@/lib/i18n";
 
 export const dynamicParams = false;
@@ -39,9 +39,10 @@ export default async function ArticleIndexPage({ params, searchParams }: { param
   const copy = articleCopy[lang];
   const all = articlesIn(lang);
   const tags = [...new Set(all.flatMap(article => article.tags))].sort((a, b) => a.localeCompare(b, lang));
-  const category = query.categorie === "recept" || query.categorie === "gids" ? query.categorie : "";
+  const requested = query.categorie === "recept" || query.categorie === "gids" || query.categorie === "nieuws" ? query.categorie : "";
+  const category = requested === "gids" ? "nieuws" : requested;
   const tag = query.tag && tags.includes(query.tag) ? query.tag : "";
-  const articles = all.filter(article => (!category || article.category === category) && (!tag || article.tags.includes(tag)));
+  const articles = all.filter(article => (!category || article.category === category || (category === "nieuws" && isNewsCategory(article.category))) && (!tag || article.tags.includes(tag)));
   return (
     <main className="app-shell" style={{ maxWidth: 980 }}>
       <Brand />
@@ -58,7 +59,7 @@ export default async function ArticleIndexPage({ params, searchParams }: { param
           <label htmlFor="categorie">{copy.category}</label>
           <select id="categorie" name="categorie" defaultValue={category}>
             <option value="">{copy.allCategories}</option>
-            <option value="gids">{copy.guides}</option>
+            <option value="nieuws">{copy.guides}</option>
             <option value="recept">{copy.recipes}</option>
           </select>
         </div>

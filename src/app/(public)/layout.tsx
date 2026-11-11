@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { PageVisitCollector } from "@/components/PageVisitCollector";
 import { getDocumentLocale } from "@/lib/document-language";
 import { isHalloweenToday } from "@/lib/seasonal";
 import { siteMetadata, siteViewport } from "@/lib/site-metadata";
@@ -11,7 +12,10 @@ export default async function PublicLayout({ children }: Readonly<{ children: Re
   const locale = await getDocumentLocale();
   return (
     <html lang={locale}>
-      <body className={isHalloweenToday() ? "halloween-theme" : undefined}>{children}</body>
+      <body className={isHalloweenToday() ? "halloween-theme" : undefined}>
+        <PageVisitCollector vercelEnv={process.env.VERCEL_ENV} />
+        {children}
+      </body>
     </html>
   );
 }

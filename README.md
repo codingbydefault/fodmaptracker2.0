@@ -81,3 +81,5 @@ Dit is een MVP-startpunt, geen medisch gevalideerd product of volledig afgeronde
 De tabellen `food_catalog` en `food_fodmap_assessments` zijn alleen een datamodel voor latere gecontroleerde gegevens. Er zijn bewust geen FODMAP-scores ingevuld. Gebruik voor FODMAP-beoordelingen alleen rechtmatig verkregen, betrouwbare gegevens en laat de inhoud deskundig controleren. De app mag geen diagnose stellen of dieetbehandeling voorschrijven.
 
 Omdat symptomen gezondheidsgegevens kunnen zijn, voer vóór een openbare lancering een AVG/privacybeoordeling uit: rechtsgrond, transparantie, bewaartermijnen, dataminimalisatie, rechten van betrokkenen, verwerkersovereenkomsten en beoordelen of een DPIA nodig is.
+
+Apple Health (HealthKit) is een uitgeschakeld concept. `NEXT_PUBLIC_FEATURE_APPLE_HEALTH` blijft leeg; alleen de letterlijke waarde `true` zet de shell aan, en ook dan schrijft de app niets naar Gezondheid. Zie `docs/apple-health-plan.md`.

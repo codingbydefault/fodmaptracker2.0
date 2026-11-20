@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Brand } from "@/components/Brand";
 import { SubmitButton } from "@/components/SubmitButton";
+import { SkipLink } from "@/components/SkipLink";
 import { updatePassword } from "@/lib/actions";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,28 +24,32 @@ export default async function NewPasswordPage({ searchParams }: { searchParams: 
       signedIn = false;
     }
   }
+  const invalid = Boolean(params.error);
   return (
-    <main className="auth-wrap">
+    <>
+    <SkipLink />
+    <main className="auth-wrap" id="inhoud">
       <Brand />
       <section className="auth-card" style={{ marginTop: 24 }}>
         <div className="eyebrow">Account</div>
         <h1>Nieuw wachtwoord</h1>
-        {params.error && <div className="notice notice-error">{errors[params.error] ?? errors.auth}</div>}
+        {params.error && <div id="form-error" className="notice notice-error" role="alert">{errors[params.error] ?? errors.auth}</div>}
         {signedIn ? (
-          <form action={updatePassword} style={{ display: "grid", gap: 14, marginTop: 22 }}>
+          <form action={updatePassword} style={{ display: "grid", gap: 14, marginTop: 22 }} aria-describedby={invalid ? "form-error" : undefined}>
             <div className="field">
               <label htmlFor="password">Nieuw wachtwoord (minimaal 10 tekens)</label>
-              <input id="password" name="password" type="password" autoComplete="new-password" required minLength={10} maxLength={128} />
+              <input id="password" name="password" type="password" autoComplete="new-password" required minLength={10} maxLength={128} aria-invalid={invalid || undefined} aria-describedby={invalid ? "form-error" : undefined} />
             </div>
             <SubmitButton className="btn" style={{ marginTop: 5 }}>Wachtwoord opslaan →</SubmitButton>
           </form>
         ) : (
-          <div className="notice notice-error">Open de link in de e-mail om een nieuw wachtwoord te kiezen. Vraag een nieuwe link aan als deze verlopen is.</div>
+          <div className="notice notice-error" role="alert">Open de link in de e-mail om een nieuw wachtwoord te kiezen. Vraag een nieuwe link aan als deze verlopen is.</div>
         )}
         <p className="subtle" style={{ fontSize: 13, marginTop: 20 }}>
           <Link href="/wachtwoord-vergeten" style={{ color: "var(--green)", fontWeight: 700 }}>Nieuwe herstellink aanvragen</Link>
         </p>
       </section>
     </main>
+    </>
   );
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Brand } from "@/components/Brand";
 import { PublicFooter } from "@/components/PublicFooter";
+import { SkipLink } from "@/components/SkipLink";
 import { articleCopy } from "@/lib/article-copy";
 import { articlePath, articlesIn, articlesPath, articleUrl, hreflangMap, isArticleLanguage, isNewsCategory } from "@/lib/articles";
 import { languageInfo, languages, type AppLanguage } from "@/lib/i18n";
@@ -44,7 +45,9 @@ export default async function ArticleIndexPage({ params, searchParams }: { param
   const tag = query.tag && tags.includes(query.tag) ? query.tag : "";
   const articles = all.filter(article => (!category || article.category === category || (category === "nieuws" && isNewsCategory(article.category))) && (!tag || article.tags.includes(tag)));
   return (
-    <main className="app-shell" style={{ maxWidth: 980 }}>
+    <>
+    <SkipLink />
+    <main className="app-shell" id="inhoud" style={{ maxWidth: 980 }}>
       <Brand />
       <header style={{ margin: "28px 0 18px" }}>
         <div className="eyebrow">{copy.latestEyebrow}</div>
@@ -92,5 +95,6 @@ export default async function ArticleIndexPage({ params, searchParams }: { param
       </section>
       <PublicFooter lang={lang} />
     </main>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Brand } from "@/components/Brand";
 import { SubmitButton } from "@/components/SubmitButton";
+import { SkipLink } from "@/components/SkipLink";
 import { requestPasswordReset } from "@/lib/actions";
 
 export const metadata = { title: "Wachtwoord vergeten" };
@@ -14,19 +15,22 @@ const errors: Record<string, string> = {
 
 export default async function ForgotPasswordPage({ searchParams }: { searchParams: Promise<{ error?: string; message?: string }> }) {
   const params = await searchParams;
+  const invalid = Boolean(params.error);
   return (
-    <main className="auth-wrap">
+    <>
+    <SkipLink />
+    <main className="auth-wrap" id="inhoud">
       <Brand />
       <section className="auth-card" style={{ marginTop: 24 }}>
         <div className="eyebrow">Account</div>
         <h1>Wachtwoord vergeten</h1>
         <p className="subtle" style={{ fontSize: 13 }}>We sturen een link om een nieuw wachtwoord te kiezen. De link opent deze site.</p>
-        {params.error && <div className="notice notice-error">{errors[params.error] ?? errors.auth}</div>}
-        {params.message === "verzonden" && <div className="notice">Als dit adres bij ons bekend is, ontvang je een e-mail om je wachtwoord opnieuw in te stellen.</div>}
-        <form action={requestPasswordReset} style={{ display: "grid", gap: 14, marginTop: 22 }}>
+        {params.error && <div id="form-error" className="notice notice-error" role="alert">{errors[params.error] ?? errors.auth}</div>}
+        {params.message === "verzonden" && <div className="notice" role="status">Als dit adres bij ons bekend is, ontvang je een e-mail om je wachtwoord opnieuw in te stellen.</div>}
+        <form action={requestPasswordReset} style={{ display: "grid", gap: 14, marginTop: 22 }} aria-describedby={invalid ? "form-error" : undefined}>
           <div className="field">
             <label htmlFor="email">E-mailadres</label>
-            <input id="email" name="email" type="email" autoComplete="email" required maxLength={254} />
+            <input id="email" name="email" type="email" autoComplete="email" required maxLength={254} aria-invalid={invalid || undefined} aria-describedby={invalid ? "form-error" : undefined} />
           </div>
           <SubmitButton className="btn" style={{ marginTop: 5 }}>Verstuur herstellink →</SubmitButton>
         </form>
@@ -35,5 +39,6 @@ export default async function ForgotPasswordPage({ searchParams }: { searchParam
         </p>
       </section>
     </main>
+    </>
   );
 }

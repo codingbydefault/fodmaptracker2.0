@@ -47,6 +47,9 @@ const nextConfig: NextConfig = {
       // Profile photos remain restricted to 3 MB in the server action itself.
       bodySizeLimit: "6mb",
     },
+    // Multiple root layouts cannot share one 404 document. This flag serves
+    // app/global-not-found.tsx for unmatched URLs without changing the CSP.
+    globalNotFound: true,
   },
   turbopack: { root: process.cwd() },
   async redirects() {

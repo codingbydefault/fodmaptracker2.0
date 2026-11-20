@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleMarkdown } from "@/components/ArticleMarkdown";
@@ -8,6 +9,7 @@ import { articleCopy } from "@/lib/article-copy";
 import { articleParams, articlePath, articleUrl, articlesPath, formatDuration, getArticle, groupIngredients, hreflangMap, ingredientLine, isArticleLanguage, publicFodmapItems, recipeJsonLd, sanitizeArticleBody, translationsOf, type Article } from "@/lib/articles";
 import { languageInfo, type AppLanguage } from "@/lib/i18n";
 import { siteUrl } from "@/lib/site";
+import { SkipLink } from "@/components/SkipLink";
 
 export const dynamicParams = false;
 
@@ -54,11 +56,21 @@ export default async function ArticlePage({ params }: { params: Promise<{ lang: 
   const body = sanitizeArticleBody(article.body).replace(/^# .+\n+/, "");
   const json = article.category === "recept" ? recipeJsonLd(article) : null;
   const estimated = new Set(article.estimated_fields ?? []);
+  const hero = placeholder(article);
+  const heroAlt = article.image_alt ?? copy.placeholderLabel;
   return (
-    <main className="app-shell article-page" style={{ maxWidth: 820 }}>
+    <>
+    <SkipLink />
+    <main className="app-shell article-page" id="inhoud" style={{ maxWidth: 820 }}>
       <Brand />
       <p className="footer-note" style={{ marginTop: 18 }}><Link href={articlesPath(lang)}>← {copy.back}</Link></p>
-      <img className="article-hero" src={placeholder(article)} alt={article.image_alt ?? copy.placeholderLabel} />
+      <div className="article-hero-frame">
+        {hero.endsWith(".svg") ? (
+          <img className="article-hero" src={hero} alt={heroAlt} />
+        ) : (
+          <Image className="article-hero" src={hero} alt={heroAlt} fill sizes="(max-width: 720px) 100vw, 820px" preload />
+        )}
+      </div>
       <header>
         <div className="eyebrow">{article.category === "recept" ? copy.recipes : copy.guides} · {article.reading_time_minutes} {copy.minutes}</div>
         <h1 className="page-title">{article.title}</h1>
@@ -116,5 +128,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ lang: 
       <PublicFooter lang={lang} />
       {json && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json).replace(/</g, "\\u003c") }} />}
     </main>
+    </>
   );
 }

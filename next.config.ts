@@ -17,11 +17,22 @@ const contentSecurityPolicyReportOnly = [
   "manifest-src 'self'",
 ].join("; ");
 
+// Enforced slice only. frame-ancestors, base-uri and object-src do not change
+// which scripts or images load. The full policy stays report-only until
+// production reports show it is safe to enforce.
+const contentSecurityPolicy = [
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=(), payment=()" },
+  { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=(), payment=(), accelerometer=(), bluetooth=(), display-capture=(), gyroscope=(), magnetometer=(), usb=(), browsing-topics=()" },
+  { key: "Content-Security-Policy", value: contentSecurityPolicy },
   { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
   { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
   { key: "Content-Security-Policy-Report-Only", value: contentSecurityPolicyReportOnly },
